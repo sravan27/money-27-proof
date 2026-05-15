@@ -1,0 +1,499 @@
+{
+  "name": "Retell AI to GoHighLevel CRM - 48h Sprint Blueprint",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "retell-ghl-call-outcome",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "retell-webhook",
+      "name": "Retell Call Outcome Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-900, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body || $json;\nconst caller = body.caller || body.customer || {};\nconst booking = body.booking || {};\nconst callId = body.call_id || body.callId || body.id || body.event_id;\nconst phone = caller.phone || body.phone || body.from_number || '';\nconst email = caller.email || body.email || '';\nconst outcome = String(body.outcome || body.call_outcome || body.status || 'needs_review').toLowerCase();\nconst requestedTime = booking.requested_time || body.requested_time || body.appointment_time || '';\nconst confidence = Number(body.confidence || body.outcome_confidence || 0);\nconst normalized = {\n  idempotency_key: callId ? `retell:${callId}` : `retell:missing:${Date.now()}`,\n  call_id: callId || null,\n  outcome,\n  confidence,\n  contact: {\n    name: caller.name || body.name || 'Unknown caller',\n    phone,\n    email\n  },\n  booking: {\n    requested_time: requestedTime,\n    service: booking.service || body.service || 'consultation'\n  },\n  summary: body.transcript_summary || body.summary || body.transcript || '',\n  raw: body\n};\nnormalized.has_identity = Boolean(phone || email);\nnormalized.has_booking_time = Boolean(requestedTime);\nnormalized.route = !normalized.has_identity ? 'review_missing_identity'\n  : outcome.includes('book') && normalized.has_booking_time ? 'booked'\n  : outcome.includes('reschedule') ? 'reschedule'\n  : outcome.includes('handoff') || outcome.includes('human') ? 'human_handoff'\n  : outcome.includes('qualified') ? 'qualified_no_booking'\n  : 'needs_review';\nreturn [{ json: normalized }];"
+      },
+      "id": "normalize-retell-event",
+      "name": "Normalize Retell Event",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-660, 0]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "booked",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "booked"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "reschedule",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "reschedule"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "human_handoff",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "human_handoff"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "qualified_no_booking",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "qualified_no_booking"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "route-outcome",
+      "name": "Route Call Outcome",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [-420, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://services.leadconnectorhq.com/contacts/upsert",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{GHL_API_TOKEN}}"
+            },
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"locationId\": \"{{GHL_LOCATION_ID}}\",\n  \"name\": $json.contact.name,\n  \"phone\": $json.contact.phone,\n  \"email\": $json.contact.email,\n  \"tags\": [\"retell\", \"voice-ai\", $json.route],\n  \"customFields\": [\n    {\"key\": \"retell_call_id\", \"field_value\": $json.call_id},\n    {\"key\": \"retell_summary\", \"field_value\": $json.summary}\n  ]\n}"
+      },
+      "id": "booked-upsert-contact",
+      "name": "Booked - Upsert GHL Contact",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-140, -300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://services.leadconnectorhq.com/opportunities/",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{GHL_API_TOKEN}}"
+            },
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"locationId\": \"{{GHL_LOCATION_ID}}\",\n  \"pipelineId\": \"{{GHL_PIPELINE_ID}}\",\n  \"pipelineStageId\": \"{{GHL_BOOKED_STAGE_ID}}\",\n  \"name\": `Retell booked call - ${$json.contact.name}`,\n  \"status\": \"open\",\n  \"source\": \"Retell AI\"\n}"
+      },
+      "id": "booked-create-opportunity",
+      "name": "Booked - Create Opportunity",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [120, -300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://services.leadconnectorhq.com/calendars/events/appointments",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{GHL_API_TOKEN}}"
+            },
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"calendarId\": \"{{GHL_CALENDAR_ID}}\",\n  \"locationId\": \"{{GHL_LOCATION_ID}}\",\n  \"title\": `Retell booking - ${$json.contact.name}`,\n  \"startTime\": $json.booking.requested_time,\n  \"appointmentStatus\": \"confirmed\",\n  \"notes\": $json.summary\n}"
+      },
+      "id": "booked-create-appointment",
+      "name": "Booked - Create Appointment",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [380, -300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://services.leadconnectorhq.com/contacts/upsert",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{GHL_API_TOKEN}}"
+            },
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"locationId\": \"{{GHL_LOCATION_ID}}\",\n  \"name\": $json.contact.name,\n  \"phone\": $json.contact.phone,\n  \"email\": $json.contact.email,\n  \"tags\": [\"retell\", \"voice-ai\", \"human-handoff\"],\n  \"customFields\": [\n    {\"key\": \"retell_call_id\", \"field_value\": $json.call_id},\n    {\"key\": \"retell_summary\", \"field_value\": $json.summary}\n  ]\n}"
+      },
+      "id": "handoff-upsert-contact",
+      "name": "Handoff - Upsert GHL Contact",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-140, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://services.leadconnectorhq.com/contacts/{{CONTACT_ID_FROM_PREVIOUS_STEP}}/tasks",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{GHL_API_TOKEN}}"
+            },
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"title\": \"Retell call needs human follow-up\",\n  \"body\": $json.summary,\n  \"dueDate\": new Date(Date.now() + 30 * 60 * 1000).toISOString(),\n  \"assignedTo\": \"{{GHL_DEFAULT_USER_ID}}\"\n}"
+      },
+      "id": "handoff-create-task",
+      "name": "Handoff - Create Task",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [120, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://services.leadconnectorhq.com/contacts/upsert",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{GHL_API_TOKEN}}"
+            },
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"locationId\": \"{{GHL_LOCATION_ID}}\",\n  \"name\": $json.contact.name,\n  \"phone\": $json.contact.phone,\n  \"email\": $json.contact.email,\n  \"tags\": [\"retell\", \"voice-ai\", \"reschedule-requested\"],\n  \"customFields\": [\n    {\"key\": \"retell_call_id\", \"field_value\": $json.call_id},\n    {\"key\": \"requested_reschedule_time\", \"field_value\": $json.booking.requested_time}\n  ]\n}"
+      },
+      "id": "reschedule-upsert-contact",
+      "name": "Reschedule - Upsert Contact",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [-140, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://services.leadconnectorhq.com/contacts/{{CONTACT_ID_FROM_PREVIOUS_STEP}}/tasks",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{GHL_API_TOKEN}}"
+            },
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"title\": \"Confirm Retell reschedule request\",\n  \"body\": `Requested time: ${$json.booking.requested_time}\\n\\n${$json.summary}`,\n  \"assignedTo\": \"{{GHL_DEFAULT_USER_ID}}\"\n}"
+      },
+      "id": "reschedule-create-task",
+      "name": "Reschedule - Create Task",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [120, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "return [{ json: {\n  status: 'review_required',\n  reason: $json.route,\n  idempotency_key: $json.idempotency_key,\n  call_id: $json.call_id,\n  missing_identity: !$json.has_identity,\n  missing_booking_time: !$json.has_booking_time,\n  summary: $json.summary\n}}];"
+      },
+      "id": "review-payload",
+      "name": "Review Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-140, 560]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"ok\": true,\n  \"workflow\": \"retell-ghl-call-outcome\",\n  \"route\": $json.route || $json.status,\n  \"idempotency_key\": $json.idempotency_key\n}"
+      },
+      "id": "respond-success",
+      "name": "Respond To Retell",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [680, 0]
+    }
+  ],
+  "connections": {
+    "Retell Call Outcome Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize Retell Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Retell Event": {
+      "main": [
+        [
+          {
+            "node": "Route Call Outcome",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Call Outcome": {
+      "main": [
+        [
+          {
+            "node": "Booked - Upsert GHL Contact",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reschedule - Upsert Contact",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handoff - Upsert GHL Contact",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handoff - Upsert GHL Contact",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Review Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Booked - Upsert GHL Contact": {
+      "main": [
+        [
+          {
+            "node": "Booked - Create Opportunity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Booked - Create Opportunity": {
+      "main": [
+        [
+          {
+            "node": "Booked - Create Appointment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Booked - Create Appointment": {
+      "main": [
+        [
+          {
+            "node": "Respond To Retell",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Handoff - Upsert GHL Contact": {
+      "main": [
+        [
+          {
+            "node": "Handoff - Create Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Handoff - Create Task": {
+      "main": [
+        [
+          {
+            "node": "Respond To Retell",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reschedule - Upsert Contact": {
+      "main": [
+        [
+          {
+            "node": "Reschedule - Create Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reschedule - Create Task": {
+      "main": [
+        [
+          {
+            "node": "Respond To Retell",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Review Payload": {
+      "main": [
+        [
+          {
+            "node": "Respond To Retell",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true
+  },
+  "staticData": null,
+  "pinData": {}
+}

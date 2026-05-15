@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Retell AI To GoHighLevel Workflow Demo</title>
+    <meta name="description" content="Retell AI voice-agent to GoHighLevel workflow demo with booking, handoff, duplicate prevention, and review paths.">
+    <link rel="canonical" href="./retell_ghl_workflow_demo.html">
+    <style>
+      :root {
+        --ink: #16201f;
+        --muted: #5c6763;
+        --paper: #fbfbf8;
+        --line: #d9e1dd;
+        --white: #ffffff;
+        --green: #176b4d;
+        --teal: #0d6875;
+        --amber: #a76512;
+        --red: #9f3f36;
+        --blue: #254f85;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: var(--ink);
+        background: var(--paper);
+        line-height: 1.45;
+      }
+
+      main {
+        max-width: 1220px;
+        margin: 0 auto;
+        padding: 30px 20px 56px;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(280px, 0.55fr);
+        gap: 24px;
+        align-items: end;
+        padding-bottom: 26px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        min-height: 30px;
+        padding: 0 10px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        color: var(--green);
+        font-size: 13px;
+        font-weight: 760;
+        margin-bottom: 14px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(36px, 6vw, 76px);
+        line-height: 0.96;
+        letter-spacing: 0;
+      }
+
+      h2 {
+        margin: 0 0 14px;
+        font-size: 24px;
+        letter-spacing: 0;
+      }
+
+      p {
+        color: var(--muted);
+      }
+
+      .panel {
+        background: var(--white);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 18px;
+      }
+
+      .stack {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 10px;
+        margin: 20px 0;
+      }
+
+      .step {
+        min-height: 132px;
+        background: var(--white);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 14px;
+      }
+
+      .step strong {
+        display: block;
+        margin-bottom: 8px;
+      }
+
+      .step span {
+        display: block;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 0.92fr 1.08fr;
+        gap: 16px;
+      }
+
+      .buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+
+      button {
+        min-height: 42px;
+        border: 1px solid var(--ink);
+        border-radius: 8px;
+        background: var(--white);
+        color: var(--ink);
+        padding: 0 14px;
+        font: inherit;
+        font-weight: 720;
+        cursor: pointer;
+      }
+
+      button.active {
+        background: var(--ink);
+        color: var(--white);
+      }
+
+      pre {
+        margin: 0;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+        background: #101817;
+        color: #edf6f2;
+        border-radius: 8px;
+        padding: 14px;
+        min-height: 330px;
+        font-size: 13px;
+        line-height: 1.55;
+      }
+
+      .rows {
+        display: grid;
+        gap: 10px;
+      }
+
+      .row {
+        display: grid;
+        grid-template-columns: 150px 1fr;
+        gap: 14px;
+        padding: 12px 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .label {
+        color: var(--muted);
+        font-weight: 720;
+        font-size: 13px;
+      }
+
+      .value {
+        font-weight: 720;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        min-height: 28px;
+        border-radius: 999px;
+        padding: 0 10px;
+        color: #fff;
+        background: var(--teal);
+      }
+
+      .booked {
+        background: var(--green);
+      }
+
+      .handoff {
+        background: var(--amber);
+      }
+
+      .failed {
+        background: var(--red);
+      }
+
+      .reschedule {
+        background: var(--blue);
+      }
+
+      .notes {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 16px;
+      }
+
+      .note {
+        background: var(--white);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 16px;
+      }
+
+      .note strong {
+        display: block;
+        margin-bottom: 8px;
+      }
+
+      @media (max-width: 900px) {
+        .hero,
+        .grid,
+        .stack,
+        .notes {
+          grid-template-columns: 1fr;
+        }
+
+        .row {
+          grid-template-columns: 1fr;
+          gap: 4px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="hero">
+        <div>
+          <div class="badge">Proof-of-approach for a 48-hour automation sprint</div>
+          <h1>Retell AI to GoHighLevel CRM Workflow</h1>
+          <p>A compact map for converting voice-agent call outcomes into reliable CRM updates, booking actions, and human handoff tasks.</p>
+        </div>
+        <div class="panel">
+          <strong>Buyer fit</strong>
+          <p>Voice AI, appointment setting, GoHighLevel, lead routing, bookings, confirmations, and recovery paths when the call outcome is ambiguous.</p>
+        </div>
+      </section>
+
+      <section class="stack" aria-label="Workflow stages">
+        <div class="step"><strong>1. Retell Event</strong><span>Receive call-ended or booking-intent webhook with caller, transcript, call ID, and extracted fields.</span></div>
+        <div class="step"><strong>2. Validate</strong><span>Check phone, email, booking time, outcome, and idempotency key before touching CRM records.</span></div>
+        <div class="step"><strong>3. Route</strong><span>Map booked, reschedule, no-show, not-qualified, and human-handoff outcomes to separate paths.</span></div>
+        <div class="step"><strong>4. GHL Action</strong><span>Create or update contact, opportunity, calendar event, note, tag, and internal task.</span></div>
+        <div class="step"><strong>5. Audit</strong><span>Log the raw event, normalized payload, CRM result, failure state, and recovery instruction.</span></div>
+      </section>
+
+      <section class="grid">
+        <div class="panel">
+          <h2>Sample Retell Payload</h2>
+          <div class="buttons">
+            <button class="active" data-case="booked">Booked</button>
+            <button data-case="handoff">Human handoff</button>
+            <button data-case="reschedule">Reschedule</button>
+            <button data-case="failed">Missing data</button>
+          </div>
+          <pre id="payload"></pre>
+        </div>
+
+        <div class="panel">
+          <h2>Mapped GoHighLevel Actions</h2>
+          <div class="rows">
+            <div class="row"><div class="label">Outcome</div><div class="value"><span id="outcome" class="pill booked">booked</span></div></div>
+            <div class="row"><div class="label">Contact</div><div id="contact" class="value"></div></div>
+            <div class="row"><div class="label">Opportunity</div><div id="opportunity" class="value"></div></div>
+            <div class="row"><div class="label">Calendar / Task</div><div id="calendar" class="value"></div></div>
+            <div class="row"><div class="label">Duplicate guard</div><div id="guard" class="value"></div></div>
+            <div class="row"><div class="label">Failure path</div><div id="failure" class="value"></div></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="notes">
+        <div class="note">
+          <strong>Implementation shape</strong>
+          <p>Webhook trigger, normalized event object, deterministic call ID key, outcome router, GHL API actions, and execution log.</p>
+        </div>
+        <div class="note">
+          <strong>48-hour milestone</strong>
+          <p>Core call outcome to GHL contact/opportunity/calendar/task path, tested with sample events and documented for operators.</p>
+        </div>
+        <div class="note">
+          <strong>Risk control</strong>
+          <p>No duplicate bookings on Retell retries, no silent CRM failures, and manual review when required fields are missing.</p>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const cases = {
+        booked: {
+          payload: {
+            call_id: "retell_call_8f42",
+            event: "call_ended",
+            outcome: "booked",
+            caller: { name: "Maya Chen", phone: "+1 415 555 0194", email: "maya@example.com" },
+            booking: { requested_time: "2026-05-18T15:30:00-07:00", service: "roof inspection" },
+            transcript_summary: "Caller qualified for inspection and accepted Monday 3:30pm.",
+            confidence: 0.92
+          },
+          actions: {
+            outcome: "booked",
+            contact: "Upsert contact by phone/email; add tag voice-ai-booked.",
+            opportunity: "Create or move opportunity to Appointment Booked.",
+            calendar: "Create calendar booking and send confirmation task.",
+            guard: "Use call_id retell_call_8f42 as idempotency key.",
+            failure: "If calendar slot is unavailable, create human confirmation task instead."
+          }
+        },
+        handoff: {
+          payload: {
+            call_id: "retell_call_902c",
+            event: "call_ended",
+            outcome: "needs_human_handoff",
+            caller: { name: "Jordan Miles", phone: "+1 312 555 0182", email: "jordan@example.com" },
+            reason: "Pricing objection and custom commercial property question",
+            transcript_summary: "Caller asked for custom quote and requested manager callback.",
+            confidence: 0.81
+          },
+          actions: {
+            outcome: "human handoff",
+            contact: "Upsert contact; add tag voice-ai-handoff.",
+            opportunity: "Create or update opportunity in Needs Human Follow-Up.",
+            calendar: "Create urgent callback task for sales owner.",
+            guard: "Do not create a second task if the same call_id has already been processed.",
+            failure: "If owner is unknown, assign to default queue and alert Slack/email."
+          }
+        },
+        reschedule: {
+          payload: {
+            call_id: "retell_call_6ac1",
+            event: "call_ended",
+            outcome: "reschedule_requested",
+            caller: { name: "Sam Rivera", phone: "+1 646 555 0137", email: "sam@example.com" },
+            existing_booking_ref: "GHL-CAL-5581",
+            requested_time: "2026-05-19T10:00:00-04:00",
+            confidence: 0.86
+          },
+          actions: {
+            outcome: "reschedule",
+            contact: "Find existing contact and append call note.",
+            opportunity: "Keep opportunity stage; add reschedule activity.",
+            calendar: "Update booking if slot exists, otherwise create confirmation task.",
+            guard: "Use call_id plus existing booking ref to avoid duplicate reschedules.",
+            failure: "If booking ref is not found, route to human review."
+          }
+        },
+        failed: {
+          payload: {
+            call_id: "retell_call_f193",
+            event: "call_ended",
+            outcome: "booked",
+            caller: { name: "Unknown", phone: "", email: "" },
+            booking: { requested_time: "tomorrow afternoon", service: "consultation" },
+            confidence: 0.63
+          },
+          actions: {
+            outcome: "missing data",
+            contact: "Do not create contact until phone or email is recovered.",
+            opportunity: "No opportunity mutation on incomplete identity.",
+            calendar: "No calendar booking; create review task with transcript.",
+            guard: "Store call_id as processed with review-required status.",
+            failure: "Human review branch receives raw payload and reason codes."
+          }
+        }
+      };
+
+      const payloadEl = document.getElementById("payload");
+      const outcomeEl = document.getElementById("outcome");
+      const contactEl = document.getElementById("contact");
+      const opportunityEl = document.getElementById("opportunity");
+      const calendarEl = document.getElementById("calendar");
+      const guardEl = document.getElementById("guard");
+      const failureEl = document.getElementById("failure");
+
+      function render(key) {
+        const current = cases[key];
+        payloadEl.textContent = JSON.stringify(current.payload, null, 2);
+        outcomeEl.textContent = current.actions.outcome;
+        outcomeEl.className = `pill ${key}`;
+        contactEl.textContent = current.actions.contact;
+        opportunityEl.textContent = current.actions.opportunity;
+        calendarEl.textContent = current.actions.calendar;
+        guardEl.textContent = current.actions.guard;
+        failureEl.textContent = current.actions.failure;
+        document.querySelectorAll("button[data-case]").forEach((button) => {
+          button.classList.toggle("active", button.dataset.case === key);
+        });
+      }
+
+      document.querySelectorAll("button[data-case]").forEach((button) => {
+        button.addEventListener("click", () => render(button.dataset.case));
+      });
+
+      render("booked");
+    </script>
+  </body>
+</html>
