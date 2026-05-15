@@ -1,0 +1,539 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Landing Page Leak Finder Demo</title>
+    <meta name="description" content="Interactive proof demo for diagnosing conversion leaks between paid ads and landing pages.">
+    <link rel="canonical" href="./landing_page_leak_finder_demo.html">
+    <style>
+      :root {
+        --ink: #17201f;
+        --muted: #5c6764;
+        --paper: #fbfbf8;
+        --band: #eef3ef;
+        --white: #fff;
+        --line: #d7dfdb;
+        --green: #176b4d;
+        --blue: #195f8a;
+        --amber: #a76512;
+        --red: #9f3f36;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: var(--ink);
+        background: var(--paper);
+        line-height: 1.5;
+      }
+
+      header,
+      section,
+      footer {
+        padding-inline: clamp(20px, 5vw, 68px);
+      }
+
+      header {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(320px, 0.84fr);
+        gap: clamp(28px, 5vw, 72px);
+        align-items: center;
+        min-height: 72vh;
+        padding-block: clamp(42px, 7vw, 88px);
+        background: var(--band);
+      }
+
+      .eyebrow {
+        color: var(--green);
+        font-weight: 760;
+        margin-bottom: 14px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(40px, 7vw, 84px);
+        line-height: 0.95;
+        letter-spacing: 0;
+      }
+
+      h2 {
+        margin: 0;
+        font-size: clamp(30px, 4vw, 48px);
+        line-height: 1.05;
+        letter-spacing: 0;
+      }
+
+      h3 {
+        margin: 0 0 8px;
+        font-size: 20px;
+        letter-spacing: 0;
+      }
+
+      p {
+        color: var(--muted);
+        font-size: 17px;
+      }
+
+      .hero-copy p {
+        max-width: 720px;
+        font-size: clamp(18px, 2.2vw, 24px);
+      }
+
+      .hero-metrics {
+        display: grid;
+        gap: 12px;
+        background: var(--white);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 20px;
+      }
+
+      .metric {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 16px;
+        align-items: center;
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 12px;
+      }
+
+      .metric:last-child {
+        border-bottom: 0;
+        padding-bottom: 0;
+      }
+
+      .metric strong {
+        display: block;
+        font-size: 22px;
+      }
+
+      .metric span {
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .pill {
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        color: var(--muted);
+        font-size: 13px;
+        padding: 4px 9px;
+        white-space: nowrap;
+      }
+
+      section {
+        padding-block: clamp(42px, 6vw, 78px);
+      }
+
+      .section-head {
+        max-width: 820px;
+        margin-bottom: 24px;
+      }
+
+      .tool {
+        display: grid;
+        grid-template-columns: minmax(0, 0.92fr) minmax(320px, 1fr);
+        gap: 18px;
+        align-items: start;
+      }
+
+      .panel {
+        background: var(--white);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 18px;
+      }
+
+      label {
+        display: block;
+        font-weight: 740;
+        margin-bottom: 8px;
+      }
+
+      textarea,
+      input {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        font: inherit;
+        color: var(--ink);
+        background: #fff;
+        padding: 12px;
+      }
+
+      textarea {
+        min-height: 160px;
+        resize: vertical;
+      }
+
+      .field {
+        margin-bottom: 16px;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      button,
+      .button {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--ink);
+        border-radius: 8px;
+        padding: 0 14px;
+        text-decoration: none;
+        font: inherit;
+        font-weight: 760;
+        cursor: pointer;
+        background: var(--white);
+        color: var(--ink);
+      }
+
+      button.primary,
+      .button.primary {
+        background: var(--ink);
+        color: var(--white);
+      }
+
+      .scoreboard {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      .score {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 14px;
+        background: var(--paper);
+      }
+
+      .score strong {
+        display: block;
+        font-size: 30px;
+        line-height: 1;
+      }
+
+      .score span {
+        display: block;
+        color: var(--muted);
+        font-size: 13px;
+        margin-top: 6px;
+      }
+
+      .findings {
+        display: grid;
+        gap: 10px;
+      }
+
+      .finding {
+        border: 1px solid var(--line);
+        border-left: 4px solid var(--blue);
+        border-radius: 8px;
+        padding: 13px;
+        background: var(--white);
+      }
+
+      .finding.high {
+        border-left-color: var(--red);
+      }
+
+      .finding.medium {
+        border-left-color: var(--amber);
+      }
+
+      .finding.low {
+        border-left-color: var(--green);
+      }
+
+      .finding b {
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      .finding span {
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .card {
+        background: var(--white);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 18px;
+      }
+
+      .card ul {
+        margin: 0;
+        padding-left: 18px;
+        color: var(--muted);
+      }
+
+      .card li {
+        margin: 8px 0;
+      }
+
+      footer {
+        border-top: 1px solid var(--line);
+        padding-block: 24px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      @media (max-width: 920px) {
+        header,
+        .tool,
+        .grid,
+        .scoreboard {
+          grid-template-columns: 1fr;
+        }
+
+        header {
+          min-height: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="hero-copy">
+        <div class="eyebrow">Interactive proof for paid-media operators</div>
+        <h1>Landing Page Leak Finder</h1>
+        <p>A tiny version of a performance-marketing AI tool: paste ad copy, landing-page copy, and a target action, then score where the page leaks intent before a visitor converts.</p>
+        <div class="actions">
+          <a class="button primary" href="#demo">Run the demo</a>
+          <a class="button" href="index.html">Open sprint offer</a>
+        </div>
+      </div>
+
+      <aside class="hero-metrics" aria-label="Tool summary">
+        <div class="metric">
+          <div><strong>Message match</strong><span>Compares ad promises against page proof and CTA.</span></div>
+          <span class="pill">AdTech</span>
+        </div>
+        <div class="metric">
+          <div><strong>Friction scan</strong><span>Flags vague CTAs, missing urgency, and form risk.</span></div>
+          <span class="pill">CRO</span>
+        </div>
+        <div class="metric">
+          <div><strong>Fix queue</strong><span>Turns findings into prioritized implementation tasks.</span></div>
+          <span class="pill">Ops</span>
+        </div>
+      </aside>
+    </header>
+
+    <main>
+      <section id="demo">
+        <div class="section-head">
+          <h2>Demo scanner</h2>
+          <p>This is a static proof demo. A production version would connect Meta Ads, GA4, a page crawler, and a CMS or task system.</p>
+        </div>
+
+        <div class="tool">
+          <form class="panel" id="leakForm">
+            <div class="field">
+              <label for="adCopy">Ad or creative promise</label>
+              <textarea id="adCopy">Book qualified roofing leads this week with an AI follow-up system that calls, texts, and routes every form fill into your CRM.</textarea>
+            </div>
+            <div class="field">
+              <label for="pageCopy">Landing page copy</label>
+              <textarea id="pageCopy">Grow your business with modern marketing. We help contractors get more calls with proven strategies and automation. Schedule a consultation to learn more.</textarea>
+            </div>
+            <div class="field">
+              <label for="goal">Target action</label>
+              <input id="goal" value="Book a demo call">
+            </div>
+            <div class="actions">
+              <button class="primary" type="submit">Score leaks</button>
+              <button type="button" id="sampleButton">Load stronger sample</button>
+            </div>
+          </form>
+
+          <aside class="panel" aria-live="polite">
+            <div class="scoreboard">
+              <div class="score"><strong id="scoreTotal">58</strong><span>overall</span></div>
+              <div class="score"><strong id="scoreMatch">41</strong><span>message match</span></div>
+              <div class="score"><strong id="scoreFixes">5</strong><span>fixes</span></div>
+            </div>
+            <div class="findings" id="findings"></div>
+          </aside>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-head">
+          <h2>Production path</h2>
+          <p>The point is not a toy score. The point is a repeatable operator tool that turns paid-media waste into a fix queue.</p>
+        </div>
+        <div class="grid">
+          <article class="card">
+            <h3>Inputs</h3>
+            <ul>
+              <li>Meta ad export or campaign URL.</li>
+              <li>Landing page crawl.</li>
+              <li>Conversion goal and offer notes.</li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3>Analysis</h3>
+            <ul>
+              <li>Promise-to-proof gaps.</li>
+              <li>CTA and form friction.</li>
+              <li>Tracking and routing risks.</li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3>Output</h3>
+            <ul>
+              <li>Client-ready report.</li>
+              <li>Prioritized fix queue.</li>
+              <li>Variant copy and implementation notes.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-head">
+          <h2>Paid sprint scope</h2>
+          <p>A real build would start with one campaign and one landing page, then connect the scanner to actual source data instead of pasted text. The first paid milestone should produce a deployed internal tool, one client-readable report template, and a queue of fixes that a media buyer or landing-page builder can act on without another meeting.</p>
+        </div>
+        <div class="grid">
+          <article class="card">
+            <h3>Day one</h3>
+            <ul>
+              <li>Import campaign/ad copy and page content.</li>
+              <li>Define the scoring rubric with the operator.</li>
+              <li>Generate the first report from one live account.</li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3>Day two</h3>
+            <ul>
+              <li>Add variant copy, task export, and QA checks.</li>
+              <li>Package the output for founder or client review.</li>
+              <li>Document how the team runs the tool again.</li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3>Follow-on</h3>
+            <ul>
+              <li>Connect Meta Ads and analytics APIs.</li>
+              <li>Rank leaks by spend, volume, and conversion impact.</li>
+              <li>Track before/after improvements across accounts.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      Built as a proof asset for a 24-48 hour AI implementation sprint.
+    </footer>
+
+    <script>
+      const stopwords = new Set([
+        "the", "and", "for", "with", "that", "this", "your", "you", "are", "our", "into", "from",
+        "more", "will", "can", "help", "every", "learn", "business", "modern", "proven"
+      ]);
+
+      function keywords(text) {
+        return [...new Set(
+          text
+            .toLowerCase()
+            .replace(/[^a-z0-9\s-]/g, " ")
+            .split(/\s+/)
+            .filter((word) => word.length > 3 && !stopwords.has(word))
+        )];
+      }
+
+      function includesAny(text, words) {
+        const lower = text.toLowerCase();
+        return words.some((word) => lower.includes(word));
+      }
+
+      function score() {
+        const ad = document.getElementById("adCopy").value;
+        const page = document.getElementById("pageCopy").value;
+        const goal = document.getElementById("goal").value;
+        const pageLower = page.toLowerCase();
+        const adWords = keywords(ad);
+        const matched = adWords.filter((word) => pageLower.includes(word));
+        const matchScore = Math.round((matched.length / Math.max(adWords.length, 1)) * 100);
+        const hasProof = includesAny(pageLower, ["case study", "proof", "client", "result", "testimonial", "demo", "example", "before", "after"]);
+        const hasSpecificCta = includesAny(pageLower, ["book", "schedule", "demo", "call", "start", "audit", "quote"]);
+        const hasUrgency = includesAny(pageLower, ["today", "week", "48", "now", "limited", "immediately", "fast"]);
+        const hasFormRisk = includesAny(pageLower, ["consultation", "learn more"]) && !includesAny(pageLower, ["what happens next", "response", "within"]);
+        const hasTracking = includesAny(pageLower, ["crm", "tracking", "utm", "analytics", "report", "dashboard", "route"]);
+
+        const findings = [];
+        if (matchScore < 55) {
+          findings.push(["high", "Message mismatch", `The page only repeats ${matchScore}% of the ad's strongest terms. Mirror the campaign promise above the fold.`]);
+        } else {
+          findings.push(["low", "Message match is usable", "The page repeats enough of the ad language to preserve visitor intent."]);
+        }
+        if (!hasProof) {
+          findings.push(["high", "Missing proof", "Add a concrete result, mini case study, workflow screenshot, or before/after metric near the first CTA."]);
+        }
+        if (!hasSpecificCta) {
+          findings.push(["medium", "CTA is too vague", `Make the action explicit: '${goal}' should appear as the visible next step.`]);
+        }
+        if (!hasUrgency) {
+          findings.push(["medium", "No urgency or time box", "The page gives visitors no reason to act now. Add a relevant time window or fast-response promise."]);
+        }
+        if (hasFormRisk) {
+          findings.push(["medium", "Form expectation risk", "If the page asks for a consultation, say what happens after submission and when the buyer hears back."]);
+        }
+        if (!hasTracking) {
+          findings.push(["medium", "Routing risk", "No visible CRM, tracking, or attribution language. Paid-media teams need confidence that leads will not disappear."]);
+        }
+
+        const total = Math.max(18, Math.min(94, Math.round(
+          matchScore * 0.42 +
+          (hasProof ? 18 : 0) +
+          (hasSpecificCta ? 14 : 0) +
+          (hasUrgency ? 10 : 0) +
+          (!hasFormRisk ? 8 : 0) +
+          (hasTracking ? 8 : 0)
+        )));
+
+        document.getElementById("scoreTotal").textContent = total;
+        document.getElementById("scoreMatch").textContent = matchScore;
+        document.getElementById("scoreFixes").textContent = findings.filter((item) => item[0] !== "low").length;
+        document.getElementById("findings").innerHTML = findings
+          .map(([level, title, body]) => `<div class="finding ${level}"><b>${title}</b><span>${body}</span></div>`)
+          .join("");
+      }
+
+      document.getElementById("leakForm").addEventListener("submit", (event) => {
+        event.preventDefault();
+        score();
+      });
+
+      document.getElementById("sampleButton").addEventListener("click", () => {
+        document.getElementById("adCopy").value = "Book qualified roofing leads this week with an AI follow-up system that calls, texts, and routes every form fill into GoHighLevel.";
+        document.getElementById("pageCopy").value = "Book a demo call for a roofing lead follow-up system. See how every form fill is routed into GoHighLevel, called within 60 seconds, tagged by source, and logged in a weekly dashboard. Includes a live demo, client workflow screenshot, and a 48-hour setup option.";
+        document.getElementById("goal").value = "Book a demo call";
+        score();
+      });
+
+      score();
+    </script>
+  </body>
+</html>
