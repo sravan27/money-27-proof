@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Landing Page Leak Finder Sprint</title>
+    <meta name="description" content="A 48-hour paid sprint that turns ad and landing-page copy into a private conversion leak report and fix queue.">
+    <link rel="canonical" href="./leak-finder-sprint.html">
+    <style>
+      :root {
+        --ink: #17201f;
+        --muted: #5d6864;
+        --paper: #fbfbf8;
+        --band: #eef3ef;
+        --white: #fff;
+        --line: #d7dfdb;
+        --green: #176b4d;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: var(--ink);
+        background: var(--paper);
+        line-height: 1.5;
+      }
+
+      header, section, footer { padding-inline: clamp(20px, 5vw, 68px); }
+
+      header {
+        min-height: 76vh;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(320px, 0.85fr);
+        gap: clamp(28px, 5vw, 72px);
+        align-items: center;
+        padding-block: clamp(44px, 8vw, 90px);
+        background: var(--band);
+      }
+
+      .eyebrow {
+        color: var(--green);
+        font-weight: 760;
+        margin-bottom: 14px;
+      }
+
+      h1, h2 {
+        margin: 0;
+        line-height: 1.02;
+        letter-spacing: 0;
+      }
+
+      h1 { font-size: clamp(42px, 7vw, 86px); }
+      h2 { font-size: clamp(30px, 4vw, 48px); }
+
+      p {
+        color: var(--muted);
+        font-size: 17px;
+      }
+
+      .hero-copy p {
+        max-width: 720px;
+        font-size: clamp(18px, 2.2vw, 24px);
+      }
+
+      .panel, .card, .step {
+        background: var(--white);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+      }
+
+      .panel, .card { padding: 20px; }
+
+      .metric {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 16px;
+        align-items: center;
+        border-bottom: 1px solid var(--line);
+        padding-block: 12px;
+      }
+
+      .metric:first-child { padding-top: 0; }
+      .metric:last-child { border-bottom: 0; padding-bottom: 0; }
+      .metric strong { display: block; font-size: 22px; }
+      .metric span { color: var(--muted); font-size: 14px; }
+
+      section { padding-block: clamp(42px, 6vw, 76px); }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+        margin-top: 24px;
+      }
+
+      .card h3 {
+        margin: 0 0 8px;
+        font-size: 20px;
+      }
+
+      .price {
+        font-size: 32px;
+        font-weight: 780;
+        margin: 10px 0;
+      }
+
+      ul {
+        margin: 0;
+        padding-left: 18px;
+        color: var(--muted);
+      }
+
+      li + li { margin-top: 8px; }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 28px;
+      }
+
+      .button {
+        min-height: 46px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--ink);
+        border-radius: 8px;
+        padding: 0 18px;
+        text-decoration: none;
+        font-weight: 760;
+        color: var(--ink);
+        background: var(--white);
+      }
+
+      .button.primary {
+        background: var(--ink);
+        color: var(--white);
+      }
+
+      .band { background: var(--band); }
+
+      .steps {
+        display: grid;
+        gap: 12px;
+        margin-top: 22px;
+      }
+
+      .step {
+        display: grid;
+        grid-template-columns: 36px 1fr;
+        gap: 14px;
+        align-items: start;
+        padding: 16px;
+      }
+
+      .num {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--green);
+        color: var(--white);
+        font-weight: 780;
+      }
+
+      .step strong {
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      footer {
+        padding-block: 28px;
+        color: var(--muted);
+        border-top: 1px solid var(--line);
+      }
+
+      @media (max-width: 880px) {
+        header, .grid { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="hero-copy">
+        <div class="eyebrow">For paid-media teams and AI growth agencies</div>
+        <h1>Find the leak between the ad click and the booked lead.</h1>
+        <p>A focused 48-hour sprint that turns your ad copy, landing page, and campaign goal into a private conversion-risk report and fix queue.</p>
+        <div class="actions">
+          <a class="button primary" href="mailto:sravan272001@gmail.com?subject=Landing%20Page%20Leak%20Finder%20Sprint">Start with one funnel</a>
+          <a class="button" href="../proof/landing_page_leak_finder_demo.html">Try the proof demo</a>
+        </div>
+      </div>
+      <aside class="panel">
+        <div class="metric"><div><strong>Message match</strong><span>Ad promise versus page promise.</span></div><span>0-100</span></div>
+        <div class="metric"><div><strong>Friction</strong><span>How much thinking the page demands.</span></div><span>risk</span></div>
+        <div class="metric"><div><strong>Proof gaps</strong><span>Missing credibility near the decision point.</span></div><span>fixes</span></div>
+        <div class="metric"><div><strong>Routing risk</strong><span>Where the lead can die after the CTA.</span></div><span>map</span></div>
+      </aside>
+    </header>
+
+    <section>
+      <h2>What gets shipped</h2>
+      <div class="grid">
+        <div class="card"><h3>Private audit tool</h3><p>A small branded page or internal workflow for one team, vertical, or client account.</p></div>
+        <div class="card"><h3>Client-ready report</h3><p>Scores, issue explanations, and prioritized fixes written for operators, not just developers.</p></div>
+        <div class="card"><h3>Fix queue</h3><p>The exact copy, proof, CTA, and routing changes to test before spending more budget.</p></div>
+      </div>
+    </section>
+
+    <section class="band">
+      <h2>48-hour sprint path</h2>
+      <div class="steps">
+        <div class="step"><span class="num">1</span><div><strong>Send one funnel</strong><span>Ad copy, landing-page URL or page copy, campaign goal, and the current lead path.</span></div></div>
+        <div class="step"><span class="num">2</span><div><strong>Score the leak</strong><span>Message match, friction, proof, CTA, and routing risks are turned into one report.</span></div></div>
+        <div class="step"><span class="num">3</span><div><strong>Ship the tool</strong><span>Private page, repeatable scoring flow, and a handoff so the team can reuse it.</span></div></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Pricing</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Diagnostic</h3>
+          <div class="price">$500</div>
+          <ul><li>One funnel reviewed.</li><li>Leak report and fix queue.</li><li>Async handoff note.</li></ul>
+          <div class="actions"><a class="button" href="https://buy.polar.sh/polar_cl_G0fuUHHZ1tg9E0oe7gluje9gs44l8FAqVnfwS2AJkbw">Fund diagnostic</a></div>
+        </div>
+        <div class="card">
+          <h3>Private Tool Sprint</h3>
+          <div class="price">$1,000</div>
+          <ul><li>Private branded tool or workflow.</li><li>Scoring rubric tailored to one niche.</li><li>Report output plus operator runbook.</li></ul>
+          <div class="actions"><a class="button primary" href="https://buy.polar.sh/polar_cl_z0eLsPUJeMwrcNs4MQPAQbKIM3Rbdb8fLDgVj2RZcmr">Fund sprint</a></div>
+        </div>
+        <div class="card">
+          <h3>Client Handoff</h3>
+          <div class="price">$1,500</div>
+          <ul><li>Everything in the sprint.</li><li>Client-facing explanation deck/script.</li><li>One revision pass inside scope.</li></ul>
+          <div class="actions"><a class="button" href="https://buy.polar.sh/polar_cl_B12Farw9U5lr1SvYHDzmLAL4fo8bSt1ZNTMcD0wVcmo">Fund handoff</a></div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      Sravan Sridhar · AI automation and proof-led sprint delivery · <a href="./index.html">Main proof pack</a>
+    </footer>
+  </body>
+</html>
