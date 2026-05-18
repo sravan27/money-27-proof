@@ -1,0 +1,765 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Voice Agent Failure Triage</title>
+    <meta name="description" content="Paste a failed Retell, Vapi, or voice-agent call transcript and get failure tags, evidence, test cases, and a 48-hour fix plan.">
+    <link rel="canonical" href="./voice-agent-failure-triage.html">
+    <style>
+      :root {
+        --ink: #17201e;
+        --muted: #5a6662;
+        --paper: #fbfbf8;
+        --band: #edf4f1;
+        --line: #d6dfdb;
+        --white: #fff;
+        --green: #176b4d;
+        --teal: #126874;
+        --amber: #a86715;
+        --red: #9d3d30;
+        --blue: #285f8f;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: var(--ink);
+        background: var(--paper);
+        line-height: 1.5;
+      }
+
+      a { color: inherit; }
+
+      header,
+      main,
+      footer {
+        padding-inline: clamp(18px, 4.5vw, 64px);
+      }
+
+      header {
+        min-height: 64px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        border-bottom: 1px solid var(--line);
+        background: rgba(251, 251, 248, 0.96);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+
+      .brand {
+        font-weight: 780;
+        font-size: 15px;
+      }
+
+      nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      nav a {
+        text-decoration: none;
+      }
+
+      .tool {
+        min-height: calc(100vh - 64px);
+        display: grid;
+        grid-template-columns: minmax(0, 1.02fr) minmax(340px, 0.98fr);
+        gap: clamp(18px, 3vw, 34px);
+        align-items: stretch;
+        padding-block: clamp(22px, 4vw, 42px);
+      }
+
+      .intro {
+        margin-bottom: 18px;
+      }
+
+      .eyebrow {
+        color: var(--green);
+        font-weight: 760;
+        font-size: 14px;
+        margin-bottom: 10px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(34px, 5vw, 64px);
+        line-height: 0.98;
+        letter-spacing: 0;
+      }
+
+      .intro p,
+      .result-empty,
+      .muted {
+        color: var(--muted);
+      }
+
+      .intro p {
+        max-width: 760px;
+        margin: 14px 0 0;
+        font-size: clamp(17px, 2vw, 21px);
+      }
+
+      .panel {
+        background: var(--white);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+      }
+
+      .input-panel,
+      .result-panel {
+        padding: 18px;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      label {
+        display: grid;
+        gap: 7px;
+        font-size: 13px;
+        font-weight: 720;
+      }
+
+      select,
+      textarea,
+      input[type="text"] {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--paper);
+        color: var(--ink);
+        font: inherit;
+      }
+
+      select,
+      input[type="text"] {
+        min-height: 42px;
+        padding: 0 11px;
+      }
+
+      textarea {
+        min-height: 320px;
+        resize: vertical;
+        padding: 12px;
+        line-height: 1.45;
+      }
+
+      .stack-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 12px 0 0;
+      }
+
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        min-height: 34px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 0 10px;
+        background: var(--paper);
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .chip input {
+        margin: 0;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 14px;
+      }
+
+      button,
+      .button {
+        min-height: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--ink);
+        border-radius: 8px;
+        padding: 0 14px;
+        color: var(--ink);
+        background: var(--white);
+        font: inherit;
+        font-weight: 760;
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+      button.primary,
+      .button.primary {
+        color: var(--white);
+        background: var(--ink);
+      }
+
+      button:focus-visible,
+      .button:focus-visible,
+      textarea:focus-visible,
+      select:focus-visible,
+      input:focus-visible {
+        outline: 3px solid rgba(18, 104, 116, 0.28);
+        outline-offset: 2px;
+      }
+
+      .result-panel {
+        min-height: 100%;
+        display: grid;
+        align-content: start;
+        gap: 14px;
+      }
+
+      .score {
+        display: grid;
+        grid-template-columns: minmax(96px, 0.35fr) 1fr;
+        gap: 14px;
+        align-items: center;
+      }
+
+      .score-number {
+        min-height: 108px;
+        display: grid;
+        place-items: center;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--band);
+        font-size: 42px;
+        font-weight: 820;
+      }
+
+      .score-copy h2 {
+        margin: 0 0 6px;
+        font-size: clamp(23px, 3vw, 34px);
+        line-height: 1.08;
+        letter-spacing: 0;
+      }
+
+      .score-copy p {
+        margin: 0;
+        color: var(--muted);
+      }
+
+      .bars {
+        display: grid;
+        gap: 9px;
+      }
+
+      .bar-row {
+        display: grid;
+        grid-template-columns: minmax(110px, 0.32fr) 1fr minmax(44px, auto);
+        gap: 10px;
+        align-items: center;
+        font-size: 13px;
+      }
+
+      .bar-label {
+        font-weight: 720;
+      }
+
+      .bar-track {
+        min-height: 10px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: #e8eeeb;
+      }
+
+      .bar-fill {
+        width: 0;
+        height: 10px;
+        background: var(--green);
+      }
+
+      .bar-fill.medium { background: var(--amber); }
+      .bar-fill.high { background: var(--red); }
+      .bar-fill.info { background: var(--blue); }
+
+      .evidence-grid,
+      .fix-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .mini {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 12px;
+        background: var(--white);
+      }
+
+      .mini h3 {
+        margin: 0 0 7px;
+        font-size: 16px;
+        letter-spacing: 0;
+      }
+
+      .mini p,
+      .mini li {
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .mini p {
+        margin: 0;
+      }
+
+      .mini ul,
+      .mini ol {
+        margin: 0;
+        padding-left: 18px;
+      }
+
+      .mini li {
+        margin: 6px 0;
+      }
+
+      .report-box {
+        width: 100%;
+        min-height: 190px;
+        white-space: pre-wrap;
+      }
+
+      .notice {
+        border-left: 4px solid var(--amber);
+        padding: 10px 12px;
+        color: var(--muted);
+        background: #fff8ec;
+      }
+
+      .close-band {
+        margin-top: 6px;
+        padding: 16px;
+        background: var(--ink);
+        color: var(--white);
+        border-radius: 8px;
+      }
+
+      .support {
+        padding-block: 8px 22px;
+      }
+
+      .support h2 {
+        margin: 0 0 12px;
+        font-size: clamp(24px, 3vw, 36px);
+        line-height: 1.08;
+        letter-spacing: 0;
+      }
+
+      .close-band p {
+        color: #dfe7e4;
+        margin: 7px 0 0;
+      }
+
+      .close-band .actions {
+        margin-top: 12px;
+      }
+
+      .close-band .button {
+        border-color: var(--white);
+      }
+
+      .close-band .button.secondary {
+        background: var(--white);
+        color: var(--ink);
+      }
+
+      footer {
+        border-top: 1px solid var(--line);
+        padding-block: 22px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      @media (max-width: 980px) {
+        header {
+          align-items: flex-start;
+          flex-direction: column;
+          padding-block: 14px;
+        }
+
+        .tool,
+        .form-grid,
+        .score,
+        .evidence-grid,
+        .fix-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .tool {
+          min-height: auto;
+        }
+
+        textarea {
+          min-height: 260px;
+        }
+
+        .bar-row {
+          grid-template-columns: 1fr;
+          gap: 5px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="brand">Voice Agent Failure Triage</div>
+      <nav aria-label="Primary">
+        <a href="index.html">Proof home</a>
+        <a href="proof/restaurant_voice_agent_tuning_playbook.html">Playbook</a>
+        <a href="voice-ai-ghl-rescue.html">Paid sprint</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="tool" aria-label="Voice-agent failure triage tool">
+        <div>
+          <div class="intro">
+            <div class="eyebrow">Retell, Vapi, Bland, Twilio, n8n, and GHL rescue</div>
+            <h1>Paste a failed voice-agent call. Get the fix map.</h1>
+            <p>This triage turns one bad transcript into failure tags, evidence snippets, replay tests, and a 48-hour repair plan for production voice agents.</p>
+          </div>
+
+          <div class="panel input-panel">
+            <div class="form-grid">
+              <label>
+                Domain
+                <select id="domain">
+                  <option value="restaurant">Restaurant ordering</option>
+                  <option value="clinic">Clinic or appointment desk</option>
+                  <option value="home services">Home services</option>
+                  <option value="real estate">Real estate</option>
+                  <option value="agency">Agency client workflow</option>
+                </select>
+              </label>
+              <label>
+                Success output
+                <input id="successOutput" type="text" value="confirmed order or qualified handoff">
+              </label>
+            </div>
+
+            <label>
+              Failed call transcript or notes
+              <textarea id="transcript" spellcheck="true" placeholder="Paste a failed call transcript, tool log, QA note, or short incident summary. Include what the caller wanted, where the agent got stuck, and what system action should have happened."></textarea>
+            </label>
+
+            <div class="stack-row" aria-label="Stack involved">
+              <label class="chip"><input type="checkbox" value="Retell" checked> Retell</label>
+              <label class="chip"><input type="checkbox" value="n8n" checked> n8n</label>
+              <label class="chip"><input type="checkbox" value="GoHighLevel" checked> GHL</label>
+              <label class="chip"><input type="checkbox" value="Twilio"> Twilio</label>
+              <label class="chip"><input type="checkbox" value="POS or CRM"> POS/CRM</label>
+            </div>
+
+            <div class="actions">
+              <button class="primary" type="button" id="analyze">Analyze failure</button>
+              <button type="button" id="sample">Load sample</button>
+              <button type="button" id="clear">Clear</button>
+            </div>
+          </div>
+        </div>
+
+        <aside class="panel result-panel" aria-live="polite" aria-label="Triage result">
+          <div id="result">
+            <div class="score">
+              <div class="score-number">--</div>
+              <div class="score-copy">
+                <h2>Waiting for a failed call</h2>
+                <p>Paste one transcript and run the triage. The output is meant to become a buyer-ready mini report.</p>
+              </div>
+            </div>
+            <p class="result-empty">Best inputs: 3-20 failed turns, tool-call errors, CRM/POS action notes, and the expected business outcome.</p>
+          </div>
+        </aside>
+      </section>
+
+      <section class="support" aria-label="How to use the triage">
+        <h2>What this is built to catch</h2>
+        <div class="evidence-grid">
+          <article class="mini">
+            <h3>Boundary failures</h3>
+            <p>Voice agents usually break where natural conversation touches deterministic systems: menu lookup, appointment slots, CRM dedupe, webhook retries, POS rejection codes, and payment or consent boundaries.</p>
+          </article>
+          <article class="mini">
+            <h3>Repair loops</h3>
+            <p>A good fix does not only rewrite the prompt. It gives the agent a tested repair ladder, a safe handoff path, and replay cases so the same failed calls can be checked after every change.</p>
+          </article>
+          <article class="mini">
+            <h3>Buyer-ready evidence</h3>
+            <p>The copyable report is meant for agency overflow, founder review, and implementation scoping: what failed, where the fix lives, and what proof should exist before production traffic resumes.</p>
+          </article>
+          <article class="mini">
+            <h3>Best input</h3>
+            <p>Paste 3-20 real failed turns with any tool logs, target CRM or POS action, caller frustration points, and the business outcome that should have happened.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="close-band">
+        <strong>Fast paid rescue path</strong>
+        <p>Send 3-20 failed calls plus tool logs. I will classify the failures, tune the top boundary, add a fallback or replay harness, and leave the runbook.</p>
+        <div class="actions">
+          <a class="button secondary" href="mailto:sravan272001@gmail.com?subject=Voice%20agent%20failure%20triage">Send failed calls</a>
+          <a class="button" href="https://buy.polar.sh/polar_cl_G0fuUHHZ1tg9E0oe7gluje9gs44l8FAqVnfwS2AJkbw">Fund $500 diagnostic</a>
+          <a class="button" href="https://buy.polar.sh/polar_cl_z0eLsPUJeMwrcNs4MQPAQbKIM3Rbdb8fLDgVj2RZcmr">Fund $1,000 sprint</a>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      Related proof: restaurant tuning playbook, Retell/GHL workflow demo, and GHL voice AI audit checklist. Contact: sravan272001@gmail.com
+    </footer>
+
+    <script>
+      const transcript = document.querySelector("#transcript");
+      const domain = document.querySelector("#domain");
+      const successOutput = document.querySelector("#successOutput");
+      const result = document.querySelector("#result");
+
+      const categories = [
+        {
+          key: "menu",
+          label: "Speech, menu, or entity mapping",
+          color: "high",
+          patterns: [
+            "did you say", "can't find", "cannot find", "not on the menu", "wrong item",
+            "menu", "modifier", "sauce", "size", "spicy", "margarita", "margherita",
+            "repeat the item", "unknown item", "item id", "alias"
+          ],
+          fix: "Create canonical item and modifier aliases, boost key menu terms, and require backend lookup before confirmation."
+        },
+        {
+          key: "loop",
+          label: "Prompt loop or unclear repair turn",
+          color: "medium",
+          patterns: [
+            "again", "already said", "as i said", "you asked", "stuck", "confused",
+            "what would you like", "repeat", "same question", "loop", "understand"
+          ],
+          fix: "Add an explicit repair ladder: clarify once, summarize the known state, then hand off if the caller repeats frustration."
+        },
+        {
+          key: "tool",
+          label: "Tool, webhook, or CRM/POS boundary",
+          color: "high",
+          patterns: [
+            "webhook", "api", "timeout", "failed", "500", "400", "reject", "function",
+            "tool call", "payload", "ghl", "gohighlevel", "crm", "pos", "toast", "square",
+            "clover", "zapier", "n8n", "make"
+          ],
+          fix: "Move deterministic state checks into the function layer, log raw payloads, and return customer-safe recovery messages."
+        },
+        {
+          key: "handoff",
+          label: "Fallback or human handoff gap",
+          color: "medium",
+          patterns: [
+            "operator", "human", "manager", "call me", "frustrated", "angry", "cancel",
+            "wrong", "representative", "help", "complaint", "callback"
+          ],
+          fix: "Create a fallback action that captures number, summary, reason, and urgency before sending a callback task or SMS."
+        },
+        {
+          key: "latency",
+          label: "Latency, interruption, or silence handling",
+          color: "info",
+          patterns: [
+            "silence", "delay", "long pause", "latency", "interrupted", "talking over",
+            "cut off", "barge", "wait", "loading", "one moment"
+          ],
+          fix: "Tune endpointing and interruption sensitivity, then add wait-state speech only for long backend actions."
+        },
+        {
+          key: "compliance",
+          label: "Consent, payment, or policy risk",
+          color: "medium",
+          patterns: [
+            "payment", "card", "credit", "refund", "consent", "record", "hipaa",
+            "private", "privacy", "ssn", "medical", "prescription"
+          ],
+          fix: "Separate sensitive steps into approved scripts, mask stored fields, and route risky flows through human confirmation."
+        }
+      ];
+
+      function countHits(text, patterns) {
+        const hits = [];
+        patterns.forEach((pattern) => {
+          const index = text.indexOf(pattern);
+          if (index !== -1) hits.push({ pattern, index });
+        });
+        return hits;
+      }
+
+      function snippetFor(raw, index) {
+        const start = Math.max(0, index - 70);
+        const end = Math.min(raw.length, index + 120);
+        return raw.slice(start, end).replace(/\s+/g, " ").trim();
+      }
+
+      function selectedStack() {
+        return [...document.querySelectorAll(".chip input:checked")].map((input) => input.value);
+      }
+
+      function escapeHtml(value) {
+        return value
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function buildTests(topLabels, stack) {
+        const focus = topLabels.length ? topLabels[0] : "happy-path completion";
+        return [
+          `Replay one clean ${domain.value} call and confirm ${successOutput.value}.`,
+          `Replay the exact failed call and verify the agent exits the ${focus} failure mode.`,
+          `Force backend failure in ${stack.join(" + ") || "the stack"} and confirm no fake success is spoken.`,
+          "Trigger frustration or handoff language and confirm a callback task contains caller, summary, and reason."
+        ];
+      }
+
+      function analyze() {
+        const raw = transcript.value.trim();
+        if (!raw) {
+          result.innerHTML = `
+            <div class="score">
+              <div class="score-number">--</div>
+              <div class="score-copy">
+                <h2>Paste a failed transcript first</h2>
+                <p>The tool needs call text or incident notes to produce a useful report.</p>
+              </div>
+            </div>
+            <p class="notice">Tip: include the caller request, the agent's bad response, and the system action that should have happened.</p>
+          `;
+          return;
+        }
+
+        const lower = raw.toLowerCase();
+        const stack = selectedStack();
+        const findings = categories.map((category) => {
+          const hits = countHits(lower, category.patterns);
+          const score = Math.min(100, hits.length * 22);
+          const evidence = hits.slice(0, 2).map((hit) => snippetFor(raw, hit.index));
+          return { ...category, hits, score, evidence };
+        }).sort((a, b) => b.score - a.score);
+
+        const active = findings.filter((finding) => finding.score > 0);
+        const wordCount = raw.split(/\s+/).filter(Boolean).length;
+        const severity = Math.min(98, Math.max(18, active.reduce((sum, item) => sum + item.score, 0) / 2 + (wordCount > 180 ? 8 : 0)));
+        const severityLabel = severity >= 72 ? "High-risk production failure" : severity >= 45 ? "Fixable reliability gap" : "Light triage signal";
+        const top = active.slice(0, 3);
+        const topLabels = top.map((item) => item.label);
+        const tests = buildTests(topLabels, stack);
+
+        const evidenceHtml = top.length
+          ? top.map((item) => `
+              <article class="mini">
+                <h3>${escapeHtml(item.label)}</h3>
+                <p>${escapeHtml(item.evidence[0] || "Signal found in transcript, but no compact snippet was available.")}</p>
+              </article>
+            `).join("")
+          : `<article class="mini"><h3>No strong keyword failure found</h3><p>Use this as a manual QA note. Add tool logs or failed turns for a sharper classification.</p></article>`;
+
+        const barHtml = findings.map((item) => `
+          <div class="bar-row">
+            <span class="bar-label">${escapeHtml(item.label)}</span>
+            <span class="bar-track"><span class="bar-fill ${item.color}" style="width: ${item.score}%;"></span></span>
+            <span>${item.score}</span>
+          </div>
+        `).join("");
+
+        const fixHtml = (top.length ? top : findings.slice(0, 2)).map((item) => `
+          <article class="mini">
+            <h3>${escapeHtml(item.label)}</h3>
+            <p>${escapeHtml(item.fix)}</p>
+          </article>
+        `).join("");
+
+        const report = [
+          "VOICE AGENT FAILURE TRIAGE",
+          `Domain: ${domain.value}`,
+          `Stack: ${stack.join(", ") || "not specified"}`,
+          `Expected output: ${successOutput.value}`,
+          `Severity: ${Math.round(severity)} / 100 - ${severityLabel}`,
+          "",
+          "Top failure modes:",
+          ...(top.length ? top.map((item, index) => `${index + 1}. ${item.label} - ${item.fix}`) : ["1. Manual review needed - add more failed turns or tool logs."]),
+          "",
+          "Replay tests:",
+          ...tests.map((test, index) => `${index + 1}. ${test}`),
+          "",
+          "48-hour fix plan:",
+          "1. Classify 10-20 failed calls by these categories.",
+          "2. Patch the top tool/prompt/config boundary first.",
+          "3. Add a human handoff path for repeated ambiguity or backend failure.",
+          "4. Replay the same calls before and after the change.",
+          "5. Leave a runbook with failure tags, payload notes, and regression cases."
+        ].join("\n");
+
+        result.innerHTML = `
+          <div class="score">
+            <div class="score-number">${Math.round(severity)}</div>
+            <div class="score-copy">
+              <h2>${escapeHtml(severityLabel)}</h2>
+              <p>${escapeHtml(domain.value)} call with ${active.length || "low"} detected failure categories across ${stack.join(" + ") || "the selected stack"}.</p>
+            </div>
+          </div>
+
+          <div class="bars">${barHtml}</div>
+
+          <div class="evidence-grid">${evidenceHtml}</div>
+
+          <div class="fix-grid">${fixHtml}</div>
+
+          <article class="mini">
+            <h3>Replay tests</h3>
+            <ol>${tests.map((test) => `<li>${escapeHtml(test)}</li>`).join("")}</ol>
+          </article>
+
+          <label>
+            Copyable report
+            <textarea class="report-box" readonly>${escapeHtml(report)}</textarea>
+          </label>
+        `;
+      }
+
+      document.querySelector("#analyze").addEventListener("click", analyze);
+      document.querySelector("#sample").addEventListener("click", () => {
+        domain.value = "restaurant";
+        successOutput.value = "confirmed order in POS plus callback fallback if stuck";
+        transcript.value = `Caller: I want a margherita pizza, extra basil, and a mango lassi.\nAgent: Did you say margarita drink?\nCaller: No, margherita pizza. I already said pizza.\nAgent: What would you like to order?\nCaller: I just told you. Can I talk to a human?\nTool log: menu.search returned unknown item for margarita. order.submit was not called. n8n webhook later timed out while creating the callback task.`;
+        analyze();
+      });
+      document.querySelector("#clear").addEventListener("click", () => {
+        transcript.value = "";
+        result.innerHTML = `
+          <div class="score">
+            <div class="score-number">--</div>
+            <div class="score-copy">
+              <h2>Waiting for a failed call</h2>
+              <p>Paste one transcript and run the triage. The output is meant to become a buyer-ready mini report.</p>
+            </div>
+          </div>
+          <p class="result-empty">Best inputs: 3-20 failed turns, tool-call errors, CRM/POS action notes, and the expected business outcome.</p>
+        `;
+      });
+    </script>
+  </body>
+</html>
