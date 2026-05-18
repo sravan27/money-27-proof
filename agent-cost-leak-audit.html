@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AI Agent Cost Leak Audit</title>
+    <meta name="description" content="A 48-hour audit that finds wasted Claude Code, Codex, and agentic coding spend in one repository and ships a fix path.">
+    <link rel="canonical" href="./agent-cost-leak-audit.html">
+    <style>
+      :root {
+        --ink: #161b22;
+        --muted: #5c6670;
+        --paper: #fbfbf8;
+        --band: #edf4f2;
+        --white: #ffffff;
+        --line: #d8e0dc;
+        --blue: #155e75;
+        --green: #176b4d;
+        --red: #9f3f36;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: var(--ink);
+        background: var(--paper);
+        line-height: 1.5;
+      }
+
+      header, section, footer {
+        padding-inline: clamp(20px, 5vw, 68px);
+      }
+
+      header {
+        min-height: 78vh;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(320px, 0.9fr);
+        gap: clamp(28px, 5vw, 72px);
+        align-items: center;
+        padding-block: clamp(44px, 8vw, 92px);
+        background: var(--band);
+      }
+
+      .eyebrow {
+        color: var(--blue);
+        font-weight: 780;
+        margin-bottom: 14px;
+      }
+
+      h1, h2, h3 {
+        margin: 0;
+        letter-spacing: 0;
+      }
+
+      h1 {
+        font-size: clamp(42px, 7.4vw, 88px);
+        line-height: 0.96;
+      }
+
+      h2 {
+        font-size: clamp(30px, 4vw, 48px);
+        line-height: 1.05;
+      }
+
+      h3 { font-size: 20px; }
+
+      p {
+        color: var(--muted);
+        font-size: 17px;
+      }
+
+      .hero-copy p {
+        max-width: 740px;
+        font-size: clamp(18px, 2.2vw, 24px);
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 28px;
+      }
+
+      .button {
+        min-height: 46px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        border: 1px solid var(--ink);
+        padding: 0 18px;
+        color: var(--ink);
+        background: var(--white);
+        text-decoration: none;
+        font-weight: 760;
+      }
+
+      .button.primary {
+        background: var(--ink);
+        color: var(--white);
+      }
+
+      .panel, .card, .row {
+        background: var(--white);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+      }
+
+      .panel {
+        padding: 22px;
+        box-shadow: 0 18px 38px rgba(22, 27, 34, 0.08);
+      }
+
+      .metric {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 16px;
+        align-items: center;
+        padding-block: 13px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .metric:first-child { padding-top: 0; }
+      .metric:last-child { border-bottom: 0; padding-bottom: 0; }
+      .metric strong { display: block; font-size: 22px; }
+      .metric span { display: block; color: var(--muted); font-size: 14px; }
+      .metric b { color: var(--green); font-size: 18px; }
+
+      section {
+        padding-block: clamp(42px, 6vw, 76px);
+      }
+
+      .section-head {
+        max-width: 800px;
+        margin-bottom: 24px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .card { padding: 20px; }
+      .card p { margin-bottom: 0; }
+
+      .rows {
+        display: grid;
+        gap: 12px;
+      }
+
+      .row {
+        display: grid;
+        grid-template-columns: 160px 1fr;
+        gap: 18px;
+        padding: 16px;
+      }
+
+      .row strong { color: var(--ink); }
+
+      .price {
+        font-size: 34px;
+        font-weight: 800;
+        margin: 10px 0;
+      }
+
+      ul {
+        margin: 12px 0 0;
+        padding-left: 18px;
+        color: var(--muted);
+      }
+
+      li + li { margin-top: 8px; }
+
+      .band { background: var(--band); }
+
+      .cta {
+        background: var(--ink);
+        color: var(--white);
+      }
+
+      .cta p { color: #dce5e2; }
+      .cta .button { border-color: var(--white); }
+      .cta .primary { background: var(--white); color: var(--ink); }
+
+      footer {
+        padding-block: 28px;
+        color: var(--muted);
+        border-top: 1px solid var(--line);
+      }
+
+      @media (max-width: 880px) {
+        header, .grid, .row {
+          grid-template-columns: 1fr;
+        }
+
+        header { min-height: auto; }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="hero-copy">
+        <div class="eyebrow">For engineering teams using Claude Code, Codex, Cursor, or agentic coding</div>
+        <h1>Find where your AI agents are burning money.</h1>
+        <p>A 48-hour repo audit that identifies avoidable context churn, repeated exploration, oversized prompts, fragile tool loops, and wasted agent runs. You get a report, a measurement harness, and a fix path.</p>
+        <div class="actions">
+          <a class="button primary" href="https://buy.polar.sh/polar_cl_z0eLsPUJeMwrcNs4MQPAQbKIM3Rbdb8fLDgVj2RZcmr">Fund $1,000 sprint</a>
+          <a class="button" href="../proof/agent_cost_leak_sample_report.html">View sample report</a>
+        </div>
+      </div>
+      <aside class="panel" aria-label="Measured proof">
+        <div class="metric"><div><strong>40.9%</strong><span>Aggregate token reduction measured in context-os live Claude A/B.</span></div><b>proof</b></div>
+        <div class="metric"><div><strong>35.3%</strong><span>Mean wall-clock reduction in the same benchmark.</span></div><b>speed</b></div>
+        <div class="metric"><div><strong>36</strong><span>Cross-repo prompts across axios, requests, and ripgrep.</span></div><b>eval</b></div>
+        <div class="metric"><div><strong>0</strong><span>Embeddings, proxies, servers, or telemetry required.</span></div><b>local</b></div>
+      </aside>
+    </header>
+
+    <section>
+      <div class="section-head">
+        <h2>What gets audited</h2>
+        <p>The audit is aimed at teams already paying for AI coding tools and losing time or budget to avoidable agent behavior.</p>
+      </div>
+      <div class="grid">
+        <article class="card">
+          <h3>Context Waste</h3>
+          <p>Repeated grep/read loops, missing repo maps, oversized prompts, and files that agents keep rediscovering.</p>
+        </article>
+        <article class="card">
+          <h3>Loop Risk</h3>
+          <p>Commands, tests, and plans that cause agents to circle without producing a verified patch or answer.</p>
+        </article>
+        <article class="card">
+          <h3>Fix Surface</h3>
+          <p>Hook, prompt, repo-doc, CI, or workflow changes that reduce the next run, not just describe the current waste.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="band">
+      <div class="section-head">
+        <h2>48-hour deliverables</h2>
+      </div>
+      <div class="rows">
+        <div class="row"><strong>Day 1</strong><span>Repo scan, current AI workflow intake, agent-run risk map, and first pass cost-leak report.</span></div>
+        <div class="row"><strong>Day 2</strong><span>Measurement harness where feasible, context or workflow patch, final report, and operator runbook.</span></div>
+        <div class="row"><strong>Done means</strong><span>You can point the next agent run at better context and see exactly what changed.</span></div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2>Pricing</h2>
+        <p>Two clean ways to buy. The $1,000 sprint is the goal because it includes implementation, not just diagnosis.</p>
+      </div>
+      <div class="grid">
+        <article class="card">
+          <h3>Diagnostic</h3>
+          <div class="price">$500</div>
+          <ul>
+            <li>One repo or workflow reviewed.</li>
+            <li>Cost leak report and top fixes.</li>
+            <li>Async handoff note.</li>
+          </ul>
+          <div class="actions"><a class="button" href="https://buy.polar.sh/polar_cl_G0fuUHHZ1tg9E0oe7gluje9gs44l8FAqVnfwS2AJkbw">Fund diagnostic</a></div>
+        </article>
+        <article class="card">
+          <h3>Implementation Sprint</h3>
+          <div class="price">$1,000</div>
+          <ul>
+            <li>Audit plus one concrete fix path.</li>
+            <li>Repo map, hook, prompt, or CI patch where appropriate.</li>
+            <li>Report and runbook.</li>
+          </ul>
+          <div class="actions"><a class="button primary" href="https://buy.polar.sh/polar_cl_z0eLsPUJeMwrcNs4MQPAQbKIM3Rbdb8fLDgVj2RZcmr">Fund sprint</a></div>
+        </article>
+        <article class="card">
+          <h3>Handoff Plus</h3>
+          <div class="price">$1,500</div>
+          <ul>
+            <li>Everything in the sprint.</li>
+            <li>Team-facing rollout notes.</li>
+            <li>One revision pass after the first production run.</li>
+          </ul>
+          <div class="actions"><a class="button" href="https://buy.polar.sh/polar_cl_B12Farw9U5lr1SvYHDzmLAL4fo8bSt1ZNTMcD0wVcmo">Fund handoff</a></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="cta">
+      <div class="section-head">
+        <h2>Send one repo. Get the leaks back.</h2>
+        <p>Best inputs: GitHub repo, recent agent transcript or rough workflow, monthly AI-coding spend if known, and the next task your team wants the agent to handle faster.</p>
+      </div>
+      <div class="actions">
+        <a class="button primary" href="https://buy.polar.sh/polar_cl_z0eLsPUJeMwrcNs4MQPAQbKIM3Rbdb8fLDgVj2RZcmr">Fund $1,000 sprint</a>
+        <a class="button" href="mailto:sravan272001@gmail.com?subject=AI%20Agent%20Cost%20Leak%20Audit">Ask scope question</a>
+      </div>
+    </section>
+
+    <footer>
+      Sravan Sridhar - context-os proof: https://github.com/sravan27/context-os
+    </footer>
+  </body>
+</html>
