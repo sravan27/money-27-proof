@@ -164,6 +164,18 @@
         font-size: 14px;
       }
 
+      pre {
+        margin: 0;
+        overflow-x: auto;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 16px;
+        color: var(--white);
+        background: var(--ink);
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
       .result {
         display: none;
         margin-top: 18px;
@@ -280,6 +292,13 @@
       .cta .button { border-color: var(--white); }
       .cta .primary { background: var(--white); color: var(--ink); }
 
+      .install {
+        display: grid;
+        grid-template-columns: minmax(0, 0.95fr) minmax(320px, 1.05fr);
+        gap: 22px;
+        align-items: start;
+      }
+
       footer {
         padding-block: 28px;
         color: var(--muted);
@@ -287,7 +306,7 @@
       }
 
       @media (max-width: 900px) {
-        header, .result-band, .grid {
+        header, .result-band, .grid, .install {
           grid-template-columns: 1fr;
         }
 
@@ -372,6 +391,28 @@
         </article>
       </div>
     </section>
+
+      <section class="install">
+        <div>
+          <h2>Drop it into CI</h2>
+          <p>The checker is now a pinned GitHub Action with a green smoke test in context-os CI. Start at a forgiving threshold, then lower it after adding repo guidance, ignore rules, and validation notes.</p>
+          <div class="actions">
+            <a class="button" href="https://github.com/sravan27/context-os/releases/tag/v2.9.0">View v2.9.0 release</a>
+            <a class="button" href="https://github.com/sravan27/context-os/actions/runs/26063414029">View green CI run</a>
+          </div>
+        </div>
+        <pre><code>name: Agent cost leak check
+on: [pull_request]
+
+jobs:
+  agent-cost-leak:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: sravan27/context-os@v2.9.0
+        with:
+          max-score: "40"</code></pre>
+      </section>
 
       <section class="cta">
         <h2>Need the private version?</h2>

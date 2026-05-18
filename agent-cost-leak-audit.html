@@ -151,6 +151,13 @@
         gap: 12px;
       }
 
+      .proof-strip {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-top: 18px;
+      }
+
       .row {
         display: grid;
         grid-template-columns: 160px 1fr;
@@ -192,7 +199,7 @@
       }
 
       @media (max-width: 880px) {
-        header, .grid, .row {
+        header, .grid, .row, .proof-strip {
           grid-template-columns: 1fr;
         }
 
@@ -249,6 +256,11 @@
         <div class="row"><strong>Day 1</strong><span>Repo scan, current AI workflow intake, agent-run risk map, and first pass cost-leak report.</span></div>
         <div class="row"><strong>Day 2</strong><span>Measurement harness where feasible, GitHub Action threshold gate, context or workflow patch, final report, and operator runbook.</span></div>
         <div class="row"><strong>Done means</strong><span>You can point the next agent run at better context and see exactly what changed.</span></div>
+      </div>
+      <div class="proof-strip">
+        <a class="button" href="https://github.com/sravan27/context-os/releases/tag/v2.9.0">v2.9.0 Action release</a>
+        <a class="button" href="https://github.com/sravan27/context-os/actions/runs/26063414029">Green Action smoke test</a>
+        <a class="button" href="https://github.com/sravan27/context-os/blob/v2.9.0/action.yml">Action metadata</a>
       </div>
     </section>
 
