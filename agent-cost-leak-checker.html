@@ -306,7 +306,7 @@
       <div class="hero-copy">
         <div class="eyebrow">Public repo preview for teams using coding agents</div>
         <h1>Scan a repo for AI agent cost leaks.</h1>
-        <p>Paste a public GitHub repo and get a fast risk preview for Claude Code, Codex, Cursor, and other coding agents. No login, no upload, no private code.</p>
+        <p>Paste a public GitHub repo and get a fast risk preview for Claude Code, Codex, Cursor, and other coding agents. No login, no upload, no private code. The local version can also fail CI when risk rises above your threshold.</p>
         <div class="actions">
           <a class="button primary" href="agent-cost-leak-audit.html">Buy the 48-hour audit</a>
           <a class="button" href="https://github.com/sravan27/context-os">View context-os proof</a>
@@ -362,16 +362,20 @@
             <h3>Discovery churn</h3>
             <p>Repo shapes that make agents repeatedly grep, read, and rediscover the same files before changing code.</p>
           </article>
-          <article class="card">
-            <h3>Workflow gaps</h3>
-            <p>Missing agent instructions, eval harnesses, or repo maps that leave every new session starting cold.</p>
-          </article>
-        </div>
-      </section>
+        <article class="card">
+          <h3>Workflow gaps</h3>
+          <p>Missing agent instructions, eval harnesses, or repo maps that leave every new session starting cold.</p>
+        </article>
+        <article class="card">
+          <h3>CI threshold</h3>
+          <p>Use the local checker with <code>--max-score</code> to stop new generated noise or missing agent docs before they land.</p>
+        </article>
+      </div>
+    </section>
 
       <section class="cta">
         <h2>Need the private version?</h2>
-        <p>The paid audit reviews private repo structure, prompts, agent transcripts, and workflow habits, then ships a report plus one concrete fix path.</p>
+        <p>The paid audit reviews private repo structure, prompts, agent transcripts, and workflow habits, then ships a report, CI-ready threshold gate, and one concrete fix path.</p>
         <div class="actions">
           <a class="button primary" href="https://buy.polar.sh/polar_cl_z0eLsPUJeMwrcNs4MQPAQbKIM3Rbdb8fLDgVj2RZcmr">Fund $1,000 sprint</a>
           <a class="button" href="proof/agent_cost_leak_sample_report.html">View sample report</a>
