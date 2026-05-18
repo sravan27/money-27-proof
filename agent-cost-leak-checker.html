@@ -1,0 +1,617 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>AI Agent Cost Leak Checker</title>
+    <meta name="description" content="Instant public-repo scanner for Claude Code, Codex, Cursor, and agentic coding cost-leak signals.">
+    <link rel="canonical" href="./agent-cost-leak-checker.html">
+    <style>
+      :root {
+        --ink: #161b22;
+        --muted: #59646d;
+        --paper: #fbfbf8;
+        --band: #eef4f2;
+        --white: #ffffff;
+        --line: #d8e0dc;
+        --blue: #155e75;
+        --green: #176b4d;
+        --amber: #9a640d;
+        --red: #9f3f36;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: var(--ink);
+        background: var(--paper);
+        line-height: 1.5;
+      }
+
+      a { color: inherit; }
+
+      header, main, footer {
+        padding-inline: clamp(20px, 5vw, 68px);
+      }
+
+      header {
+        min-height: 92vh;
+        display: grid;
+        grid-template-columns: minmax(0, 0.92fr) minmax(360px, 1.08fr);
+        gap: clamp(28px, 5vw, 72px);
+        align-items: center;
+        padding-block: clamp(42px, 7vw, 88px);
+        background: var(--band);
+      }
+
+      .eyebrow {
+        color: var(--blue);
+        font-size: 14px;
+        font-weight: 780;
+        margin-bottom: 14px;
+      }
+
+      h1, h2, h3, p { margin-top: 0; }
+
+      h1 {
+        font-size: clamp(40px, 6.8vw, 84px);
+        line-height: 0.96;
+        letter-spacing: 0;
+        margin-bottom: 20px;
+      }
+
+      h2 {
+        font-size: clamp(28px, 4vw, 44px);
+        line-height: 1.06;
+        letter-spacing: 0;
+      }
+
+      p {
+        color: var(--muted);
+        font-size: 17px;
+      }
+
+      .hero-copy p {
+        max-width: 680px;
+        font-size: clamp(18px, 2.1vw, 23px);
+      }
+
+      .button, button {
+        min-height: 46px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        border: 1px solid var(--ink);
+        padding: 0 18px;
+        color: var(--ink);
+        background: var(--white);
+        text-decoration: none;
+        font-weight: 760;
+        cursor: pointer;
+      }
+
+      .button.primary, button.primary {
+        background: var(--ink);
+        color: var(--white);
+      }
+
+      .checker, .card, .result-band {
+        background: var(--white);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+      }
+
+      .checker {
+        padding: 22px;
+        box-shadow: 0 18px 38px rgba(22, 27, 34, 0.08);
+      }
+
+      form {
+        display: grid;
+        gap: 12px;
+      }
+
+      label {
+        font-size: 13px;
+        font-weight: 760;
+        color: var(--muted);
+      }
+
+      .input-row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+      }
+
+      input {
+        width: 100%;
+        min-height: 46px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 0 14px;
+        color: var(--ink);
+        background: var(--paper);
+        font: inherit;
+      }
+
+      input:focus {
+        outline: 3px solid rgba(21, 94, 117, 0.16);
+        border-color: var(--blue);
+      }
+
+      .examples {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .chip {
+        min-height: 34px;
+        border-radius: 999px;
+        padding: 0 12px;
+        border: 1px solid var(--line);
+        color: var(--muted);
+        background: var(--paper);
+        font-size: 13px;
+      }
+
+      .status {
+        min-height: 22px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .result {
+        display: none;
+        margin-top: 18px;
+      }
+
+      .result.ready { display: block; }
+
+      .result-band {
+        display: grid;
+        grid-template-columns: minmax(132px, 0.32fr) 1fr;
+        gap: 18px;
+        padding: 18px;
+        margin-bottom: 14px;
+      }
+
+      .score {
+        display: grid;
+        place-items: center;
+        min-height: 132px;
+        border-radius: 8px;
+        color: var(--white);
+        background: var(--green);
+        text-align: center;
+      }
+
+      .score.warn { background: var(--amber); }
+      .score.hot { background: var(--red); }
+      .score strong { display: block; font-size: 48px; line-height: 1; }
+      .score span { display: block; font-size: 13px; font-weight: 760; }
+
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .metric {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 12px;
+        min-height: 76px;
+      }
+
+      .metric strong {
+        display: block;
+        font-size: 22px;
+      }
+
+      .metric span {
+        display: block;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .findings {
+        display: grid;
+        gap: 10px;
+      }
+
+      .finding {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 14px;
+      }
+
+      .finding strong {
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      .finding p {
+        margin: 0;
+        font-size: 15px;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 16px;
+      }
+
+      main {
+        padding-block: clamp(42px, 6vw, 76px);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .card {
+        padding: 20px;
+      }
+
+      .card h3 {
+        margin-bottom: 8px;
+      }
+
+      .card p {
+        margin-bottom: 0;
+      }
+
+      .cta {
+        margin-top: clamp(34px, 5vw, 62px);
+        padding: clamp(28px, 5vw, 46px);
+        border-radius: 8px;
+        color: var(--white);
+        background: var(--ink);
+      }
+
+      .cta p { color: #dce5e2; }
+      .cta .button { border-color: var(--white); }
+      .cta .primary { background: var(--white); color: var(--ink); }
+
+      footer {
+        padding-block: 28px;
+        color: var(--muted);
+        border-top: 1px solid var(--line);
+      }
+
+      @media (max-width: 900px) {
+        header, .result-band, .grid {
+          grid-template-columns: 1fr;
+        }
+
+        header { min-height: auto; }
+      }
+
+      @media (max-width: 560px) {
+        .input-row, .metrics {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="hero-copy">
+        <div class="eyebrow">Public repo preview for teams using coding agents</div>
+        <h1>Scan a repo for AI agent cost leaks.</h1>
+        <p>Paste a public GitHub repo and get a fast risk preview for Claude Code, Codex, Cursor, and other coding agents. No login, no upload, no private code.</p>
+        <div class="actions">
+          <a class="button primary" href="agent-cost-leak-audit.html">Buy the 48-hour audit</a>
+          <a class="button" href="https://github.com/sravan27/context-os">View context-os proof</a>
+        </div>
+      </div>
+
+      <section class="checker" aria-label="AI agent cost leak checker">
+        <form id="checker-form">
+          <label for="repo-url">GitHub repository</label>
+          <div class="input-row">
+            <input id="repo-url" name="repo-url" type="url" value="https://github.com/sravan27/context-os" placeholder="https://github.com/org/repo" autocomplete="off" required>
+            <button class="primary" type="submit">Scan</button>
+          </div>
+          <div class="examples" aria-label="Example repositories">
+            <button class="chip" type="button" data-repo="https://github.com/sravan27/context-os">context-os</button>
+            <button class="chip" type="button" data-repo="https://github.com/axios/axios">axios</button>
+            <button class="chip" type="button" data-repo="https://github.com/BurntSushi/ripgrep">ripgrep</button>
+          </div>
+          <div class="status" id="status">Ready.</div>
+        </form>
+
+        <div class="result" id="result" aria-live="polite">
+          <div class="result-band">
+            <div class="score" id="score-box">
+              <strong id="score">0</strong>
+              <span>Leak score</span>
+            </div>
+            <div>
+              <h2 id="repo-name">Repository</h2>
+              <p id="summary">Scan results will appear here.</p>
+              <div class="metrics" id="metrics"></div>
+            </div>
+          </div>
+          <div class="findings" id="findings"></div>
+          <div class="actions">
+            <button id="copy-report" type="button">Copy report</button>
+            <a class="button primary" href="https://buy.polar.sh/polar_cl_z0eLsPUJeMwrcNs4MQPAQbKIM3Rbdb8fLDgVj2RZcmr">Fund $1,000 audit</a>
+            <a class="button" href="mailto:sravan272001@gmail.com?subject=AI%20Agent%20Cost%20Leak%20Audit">Ask scope question</a>
+          </div>
+        </div>
+      </section>
+    </header>
+
+    <main>
+      <section>
+        <h2>What the preview catches</h2>
+        <div class="grid">
+          <article class="card">
+            <h3>Context bloat</h3>
+            <p>Tracked lockfiles, generated folders, large blobs, and missing ignore rules that pull agents away from useful files.</p>
+          </article>
+          <article class="card">
+            <h3>Discovery churn</h3>
+            <p>Repo shapes that make agents repeatedly grep, read, and rediscover the same files before changing code.</p>
+          </article>
+          <article class="card">
+            <h3>Workflow gaps</h3>
+            <p>Missing agent instructions, eval harnesses, or repo maps that leave every new session starting cold.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="cta">
+        <h2>Need the private version?</h2>
+        <p>The paid audit reviews private repo structure, prompts, agent transcripts, and workflow habits, then ships a report plus one concrete fix path.</p>
+        <div class="actions">
+          <a class="button primary" href="https://buy.polar.sh/polar_cl_z0eLsPUJeMwrcNs4MQPAQbKIM3Rbdb8fLDgVj2RZcmr">Fund $1,000 sprint</a>
+          <a class="button" href="proof/agent_cost_leak_sample_report.html">View sample report</a>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      Sravan Sridhar - context-os proof: https://github.com/sravan27/context-os
+    </footer>
+
+    <script>
+      const FORM = document.getElementById("checker-form");
+      const INPUT = document.getElementById("repo-url");
+      const STATUS = document.getElementById("status");
+      const RESULT = document.getElementById("result");
+      const SCORE_BOX = document.getElementById("score-box");
+      const SCORE = document.getElementById("score");
+      const REPO_NAME = document.getElementById("repo-name");
+      const SUMMARY = document.getElementById("summary");
+      const METRICS = document.getElementById("metrics");
+      const FINDINGS = document.getElementById("findings");
+      const COPY = document.getElementById("copy-report");
+
+      let lastReport = "";
+
+      const SOURCE_EXTENSIONS = new Set([
+        ".js", ".jsx", ".ts", ".tsx", ".py", ".go", ".rs", ".java", ".kt", ".rb", ".php", ".cs", ".c", ".cc", ".cpp", ".h", ".hpp", ".swift", ".scala", ".ex", ".exs", ".clj"
+      ]);
+
+      const DOC_EXTENSIONS = new Set([".md", ".mdx", ".rst", ".txt", ".adoc"]);
+      const TEST_HINTS = ["/test/", "/tests/", "/spec/", "__tests__", ".test.", ".spec."];
+      const GENERATED_HINTS = ["/dist/", "/build/", "/coverage/", "/vendor/", "/generated/", "/fixtures/", "/snapshots/", "package-lock.json", "yarn.lock", "pnpm-lock.yaml", "bun.lockb", "poetry.lock", "Cargo.lock"];
+      const AI_CONFIGS = ["CLAUDE.md", ".claudeignore", ".claude/settings.json", ".cursor/rules", ".github/copilot-instructions.md", "AGENTS.md"];
+      const EVAL_HINTS = ["/eval", "/bench", "benchmark", "pytest", "vitest", "jest", "playwright", "cypress"];
+
+      document.querySelectorAll("[data-repo]").forEach((button) => {
+        button.addEventListener("click", () => {
+          INPUT.value = button.dataset.repo;
+          FORM.requestSubmit();
+        });
+      });
+
+      FORM.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        const parsed = parseRepo(INPUT.value);
+        if (!parsed) {
+          setStatus("Enter a valid GitHub repo URL.", true);
+          return;
+        }
+
+        try {
+          setStatus("Fetching public repo metadata...");
+          const repo = await getJson(`https://api.github.com/repos/${parsed.owner}/${parsed.repo}`);
+          setStatus("Fetching public repo tree...");
+          const tree = await getJson(`https://api.github.com/repos/${parsed.owner}/${parsed.repo}/git/trees/${repo.default_branch}?recursive=1`);
+          const report = analyze(repo, tree.tree || [], Boolean(tree.truncated));
+          render(report);
+          setStatus(tree.truncated ? "Scan complete. GitHub truncated the largest tree; score is conservative." : "Scan complete.");
+        } catch (error) {
+          setStatus(error.message || "Scan failed. GitHub may be rate limiting this browser.", true);
+        }
+      });
+
+      COPY.addEventListener("click", async () => {
+        if (!lastReport) return;
+        try {
+          await navigator.clipboard.writeText(lastReport);
+          setStatus("Report copied.");
+        } catch {
+          setStatus("Copy failed. Select the findings manually.", true);
+        }
+      });
+
+      function parseRepo(value) {
+        try {
+          const url = new URL(value.trim());
+          if (url.hostname !== "github.com") return null;
+          const parts = url.pathname.split("/").filter(Boolean);
+          if (parts.length < 2) return null;
+          return { owner: parts[0], repo: parts[1].replace(/\.git$/, "") };
+        } catch {
+          const match = value.trim().match(/^([A-Za-z0-9_.-]+)\/([A-Za-z0-9_.-]+)$/);
+          return match ? { owner: match[1], repo: match[2] } : null;
+        }
+      }
+
+      async function getJson(url) {
+        const response = await fetch(url, { headers: { "Accept": "application/vnd.github+json" } });
+        if (!response.ok) {
+          throw new Error(`GitHub returned ${response.status}. Try another public repo or wait for the API limit to reset.`);
+        }
+        return response.json();
+      }
+
+      function analyze(repo, tree, truncated) {
+        const blobs = tree.filter((item) => item.type === "blob");
+        const paths = blobs.map((item) => item.path);
+        const lowerPaths = paths.map((path) => path.toLowerCase());
+        const extensions = new Map();
+        let sourceFiles = 0;
+        let docFiles = 0;
+        let testFiles = 0;
+        let generatedFiles = 0;
+        let largeFiles = 0;
+        let totalBlobBytes = 0;
+        let evalSignals = 0;
+
+        for (const item of blobs) {
+          const lower = item.path.toLowerCase();
+          const ext = extension(lower);
+          if (SOURCE_EXTENSIONS.has(ext)) sourceFiles += 1;
+          if (DOC_EXTENSIONS.has(ext)) docFiles += 1;
+          if (TEST_HINTS.some((hint) => lower.includes(hint))) testFiles += 1;
+          if (GENERATED_HINTS.some((hint) => lower.includes(hint))) generatedFiles += 1;
+          if ((item.size || 0) > 180000) largeFiles += 1;
+          if (EVAL_HINTS.some((hint) => lower.includes(hint))) evalSignals += 1;
+          totalBlobBytes += item.size || 0;
+          if (ext) extensions.set(ext, (extensions.get(ext) || 0) + 1);
+        }
+
+        const has = (target) => lowerPaths.includes(target.toLowerCase());
+        const hasAgentInstructions = has("CLAUDE.md") || has("AGENTS.md") || has(".github/copilot-instructions.md");
+        const hasAgentIgnore = has(".claudeignore") || has(".cursorignore") || has(".aiderignore");
+        const aiConfigCount = AI_CONFIGS.filter((target) => has(target)).length;
+        const languageCount = Array.from(extensions.keys()).filter((ext) => SOURCE_EXTENSIONS.has(ext)).length;
+
+        const findings = [];
+        let score = 0;
+
+        addFinding(!hasAgentInstructions, 18, "No agent instruction file found", "Add CLAUDE.md, AGENTS.md, or equivalent repo guidance so each session starts with architecture, commands, and constraints.");
+        addFinding(!hasAgentIgnore, 18, "No agent ignore file found", "Add .claudeignore, .cursorignore, or equivalent rules for generated files, lockfiles, snapshots, and large fixtures.");
+        addFinding(generatedFiles > Math.max(8, sourceFiles * 0.12), 16, "Generated or lockfile noise is visible", `${generatedFiles} generated, build, lock, vendor, or fixture-like files may be pulling agents into low-signal reads.`);
+        addFinding(largeFiles > 8, 14, "Large tracked blobs increase read risk", `${largeFiles} files are larger than 180 KB and can waste context if agents open them during exploration.`);
+        addFinding(sourceFiles > 1600, 12, "Large source tree needs a repo map", `${sourceFiles} source files were detected. Static file/symbol hints can reduce blind Grep -> Read loops.`);
+        addFinding(docFiles < Math.max(3, sourceFiles * 0.015), 10, "Low docs-to-code signal", `${docFiles} doc files for ${sourceFiles} source files. Agents may need extra exploration without compact architecture notes.`);
+        addFinding(testFiles === 0 && sourceFiles > 40, 8, "No obvious test surface", "No obvious test/spec paths were found. Agents need a clear validation route to avoid looping on uncertain changes.");
+        addFinding(languageCount >= 5, 8, "Multi-language repo shape", `${languageCount} source extension families found. Add per-language ownership notes or a generated repo graph.`);
+        addFinding(evalSignals === 0, 8, "No eval or benchmark signal", "No obvious eval/benchmark harness was detected. Agent changes can be cheaper when success checks are explicit.");
+        addFinding(truncated, 8, "GitHub truncated the public tree", "The repository is large enough that GitHub returned a partial tree. Private audit should use a local clone for exact measurement.");
+
+        if (findings.length === 0) {
+          findings.push({
+            title: "Low public-surface leak signal",
+            detail: "The public tree has agent guidance, manageable file counts, and visible validation signals. A private audit would need transcripts or real agent runs to find deeper waste.",
+            points: 0
+          });
+        }
+
+        const topExtensions = Array.from(extensions.entries())
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 5)
+          .map(([ext, count]) => `${ext || "none"} ${count}`)
+          .join(", ");
+
+        score = Math.min(100, score);
+        const sizeMb = totalBlobBytes / (1024 * 1024);
+        const summary = score >= 70
+          ? "High leak risk. This repo likely needs ignore rules, a repo map, and explicit agent workflow constraints before repeated coding-agent use."
+          : score >= 38
+            ? "Moderate leak risk. There are enough signals to justify a focused cleanup before scaling agent usage."
+            : "Lower public-surface risk. The next useful step is measuring real agent transcripts and task flows.";
+
+        return {
+          name: repo.full_name,
+          url: repo.html_url,
+          score,
+          summary,
+          findings,
+          metrics: [
+            { label: "Files", value: blobs.length.toLocaleString() },
+            { label: "Source files", value: sourceFiles.toLocaleString() },
+            { label: "Public size", value: `${sizeMb.toFixed(sizeMb >= 10 ? 0 : 1)} MB` },
+            { label: "Large blobs", value: largeFiles.toLocaleString() },
+            { label: "AI config hits", value: aiConfigCount.toLocaleString() },
+            { label: "Top extensions", value: topExtensions || "n/a" }
+          ]
+        };
+
+        function addFinding(condition, points, title, detail) {
+          if (!condition) return;
+          score += points;
+          findings.push({ title, detail, points });
+        }
+      }
+
+      function extension(path) {
+        const slash = path.lastIndexOf("/");
+        const name = slash >= 0 ? path.slice(slash + 1) : path;
+        const dot = name.lastIndexOf(".");
+        return dot >= 0 ? name.slice(dot) : "";
+      }
+
+      function render(report) {
+        RESULT.classList.add("ready");
+        SCORE.textContent = report.score;
+        SCORE_BOX.className = "score";
+        if (report.score >= 70) SCORE_BOX.classList.add("hot");
+        else if (report.score >= 38) SCORE_BOX.classList.add("warn");
+        REPO_NAME.textContent = report.name;
+        SUMMARY.textContent = report.summary;
+        METRICS.innerHTML = report.metrics.map((metric) => `
+          <div class="metric">
+            <strong>${escapeHtml(metric.value)}</strong>
+            <span>${escapeHtml(metric.label)}</span>
+          </div>
+        `).join("");
+        FINDINGS.innerHTML = report.findings.map((finding) => `
+          <article class="finding">
+            <strong>${escapeHtml(finding.title)} ${finding.points ? `(+${finding.points})` : ""}</strong>
+            <p>${escapeHtml(finding.detail)}</p>
+          </article>
+        `).join("");
+        lastReport = [
+          `AI Agent Cost Leak Preview: ${report.name}`,
+          `Score: ${report.score}/100`,
+          report.summary,
+          "",
+          "Findings:",
+          ...report.findings.map((finding) => `- ${finding.title}: ${finding.detail}`),
+          "",
+          `Audit link: https://sravan27.github.io/money-27-proof/agent-cost-leak-audit.html`
+        ].join("\\n");
+      }
+
+      function setStatus(message, isError = false) {
+        STATUS.textContent = message;
+        STATUS.style.color = isError ? "var(--red)" : "var(--muted)";
+      }
+
+      function escapeHtml(value) {
+        return String(value)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      FORM.requestSubmit();
+    </script>
+  </body>
+</html>
