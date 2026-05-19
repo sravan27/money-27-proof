@@ -262,6 +262,103 @@
         margin: 8px 0;
       }
 
+      .scanner {
+        background: var(--white);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: clamp(20px, 4vw, 28px);
+        display: grid;
+        gap: 16px;
+      }
+
+      .scanner-form {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 10px;
+      }
+
+      .scanner-form input {
+        min-height: 46px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 0 14px;
+        font: inherit;
+        color: var(--ink);
+        background: var(--paper);
+      }
+
+      .scanner-form button,
+      .sample-button {
+        min-height: 46px;
+        border: 1px solid var(--ink);
+        border-radius: 8px;
+        padding: 0 16px;
+        font: inherit;
+        font-weight: 760;
+        color: var(--white);
+        background: var(--ink);
+        cursor: pointer;
+      }
+
+      .sample-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .sample-button {
+        min-height: 34px;
+        font-size: 13px;
+        color: var(--ink);
+        background: var(--paper);
+      }
+
+      .scanner-output {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 16px;
+        background: var(--paper);
+        min-height: 116px;
+      }
+
+      .score-row {
+        display: grid;
+        grid-template-columns: 140px minmax(0, 1fr);
+        gap: 14px;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+
+      .score {
+        display: grid;
+        place-items: center;
+        width: 112px;
+        height: 112px;
+        border: 8px solid var(--green);
+        border-radius: 50%;
+        font-size: 28px;
+        font-weight: 800;
+        background: var(--white);
+      }
+
+      .signal-list {
+        display: grid;
+        gap: 8px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .signal-list li {
+        border-bottom: 1px solid var(--line);
+        color: var(--muted);
+        padding-bottom: 8px;
+      }
+
+      .signal-list strong {
+        color: var(--ink);
+      }
+
       footer {
         border-top: 1px solid var(--line);
         padding: 24px clamp(20px, 5vw, 64px);
@@ -280,6 +377,11 @@
         }
 
         .evidence-row {
+          grid-template-columns: 1fr;
+        }
+
+        .scanner-form,
+        .score-row {
           grid-template-columns: 1fr;
         }
       }
@@ -379,6 +481,29 @@
         </div>
       </section>
 
+      <section id="scanner">
+        <h2>Working V0: Issue Signal Scanner</h2>
+        <p>
+          Paste a public GitHub issue URL. The scanner pulls issue metadata, comments, labels, linked PR signals,
+          and bounty-language risk terms, then returns a quick takeability score. This is intentionally small enough
+          to ship in 48 hours but useful enough to catch the patterns above.
+        </p>
+        <div class="scanner">
+          <form class="scanner-form" id="scanner-form">
+            <input id="issue-url" name="issue-url" type="url" placeholder="https://github.com/owner/repo/issues/123" value="https://github.com/tursodatabase/turso/issues/7148" required>
+            <button type="submit">Scan issue</button>
+          </form>
+          <div class="sample-row" aria-label="sample issues">
+            <button class="sample-button" type="button" data-url="https://github.com/tursodatabase/turso/issues/7148">Turso trust gate</button>
+            <button class="sample-button" type="button" data-url="https://github.com/getkyo/kyo/issues/390">Kyo AI PR noise</button>
+            <button class="sample-button" type="button" data-url="https://github.com/rohitdash08/FinMind/issues/144">FinMind stale bounty</button>
+          </div>
+          <div class="scanner-output" id="scanner-output" aria-live="polite">
+            Run a scan to see stale, unsafe, competition, and trust-gate signals before touching the work.
+          </div>
+        </div>
+      </section>
+
       <section id="sprint">
         <div class="offer">
           <div>
@@ -406,5 +531,122 @@
       Built by Sravan Sridhar. Supporting proof: <a href="./database-compat-fuzzing-sprint.html">database fuzzing sprint</a>,
       <a href="./agent-cost-leak-checker.html">agent context leak checker</a>, and <a href="./index.html">proof hub</a>.
     </footer>
+
+    <script>
+      const form = document.querySelector("#scanner-form");
+      const input = document.querySelector("#issue-url");
+      const output = document.querySelector("#scanner-output");
+      const samples = document.querySelectorAll(".sample-button");
+
+      const terms = {
+        stale: ["deadline", "closed", "reserved", "assigned", "already", "taken", "not available", "no payout", "no payment"],
+        unsafe: ["hidden context", "system prompt", "private instructions", "environment details", "secrets", "api key"],
+        noise: ["low quality ai", "ai pr", "bot", "spam", "generated", "agent"],
+        proof: ["demo video", "tests", "repro", "validation", "benchmark", "acceptance criteria", "claim"],
+      };
+
+      function parseIssueUrl(value) {
+        const match = value.trim().match(/^https?:\/\/github\.com\/([^/]+)\/([^/]+)\/issues\/(\d+)/i);
+        if (!match) {
+          throw new Error("Use a public GitHub issue URL like https://github.com/owner/repo/issues/123");
+        }
+        return { owner: match[1], repo: match[2], number: match[3] };
+      }
+
+      async function githubJson(url) {
+        const response = await fetch(url, { headers: { Accept: "application/vnd.github+json" } });
+        if (!response.ok) {
+          throw new Error(`GitHub returned ${response.status}. Public API rate limits may apply.`);
+        }
+        return response.json();
+      }
+
+      function hits(text, words) {
+        const lower = text.toLowerCase();
+        return words.filter((word) => lower.includes(word));
+      }
+
+      function scoreIssue(issue, comments, prs) {
+        const issueText = `${issue.title || ""}\n${issue.body || ""}`;
+        const allCommentText = comments.map((comment) => comment.body || "").join("\n");
+        const allText = `${issueText}\n${allCommentText}`;
+        const labelText = (issue.labels || []).map((label) => label.name || "").join(" ");
+        const staleHits = hits(allText, terms.stale);
+        const unsafeHits = hits(allText, terms.unsafe);
+        const noiseHits = hits(allText, terms.noise);
+        const proofHits = hits(allText, terms.proof);
+        const attemptCount = (allText.match(/\/attempt|\/claim|pull request|submitted pr|pr #/gi) || []).length;
+        const ageDays = Math.max(1, Math.round((Date.now() - new Date(issue.created_at).getTime()) / 86400000));
+
+        let score = 82;
+        if (issue.state !== "open") score -= 35;
+        if (ageDays > 90) score -= 14;
+        if (ageDays > 180) score -= 12;
+        if (comments.length > 20) score -= 14;
+        if (attemptCount > 8) score -= 18;
+        if (prs.total_count > 3) score -= 12;
+        if (staleHits.length) score -= Math.min(24, staleHits.length * 6);
+        if (unsafeHits.length) score -= Math.min(30, unsafeHits.length * 10);
+        if (noiseHits.length) score -= Math.min(18, noiseHits.length * 6);
+        if (/bounty|reward|\$\d|usd|usdt/i.test(`${issueText} ${labelText}`)) score += 8;
+        if (proofHits.length) score += Math.min(8, proofHits.length * 2);
+        score = Math.max(0, Math.min(100, score));
+
+        const recommendation = score >= 70 ? "takeable with normal diligence" : score >= 45 ? "needs maintainer confirmation first" : "avoid until clarified";
+        return { ageDays, attemptCount, comments: comments.length, prs: prs.total_count, staleHits, unsafeHits, noiseHits, proofHits, score, recommendation };
+      }
+
+      function renderResult(issue, meta, signal) {
+        const color = signal.score >= 70 ? "var(--green)" : signal.score >= 45 ? "var(--amber)" : "var(--red)";
+        const rows = [
+          ["Recommendation", signal.recommendation],
+          ["Age", `${signal.ageDays} days since opened`],
+          ["Competition", `${signal.comments} comments, ${signal.attemptCount} attempt/claim/PR phrases, ${signal.prs} related open PR search hits`],
+          ["Stale/reserved terms", signal.staleHits.length ? signal.staleHits.join(", ") : "none detected"],
+          ["Unsafe criteria terms", signal.unsafeHits.length ? signal.unsafeHits.join(", ") : "none detected"],
+          ["AI-noise terms", signal.noiseHits.length ? signal.noiseHits.join(", ") : "none detected"],
+          ["Proof/acceptance terms", signal.proofHits.length ? signal.proofHits.join(", ") : "none detected"],
+        ];
+        output.innerHTML = `
+          <div class="score-row">
+            <div class="score" style="border-color:${color}">${signal.score}</div>
+            <div>
+              <h3>${issue.title}</h3>
+              <p>${meta.owner}/${meta.repo}#${meta.number} - ${issue.state} - ${signal.recommendation}</p>
+            </div>
+          </div>
+          <ul class="signal-list">
+            ${rows.map(([label, value]) => `<li><strong>${label}:</strong> ${value}</li>`).join("")}
+          </ul>
+        `;
+      }
+
+      async function scan(value) {
+        output.textContent = "Scanning issue, comments, and related PR signals...";
+        const meta = parseIssueUrl(value);
+        const base = `https://api.github.com/repos/${meta.owner}/${meta.repo}`;
+        const issue = await githubJson(`${base}/issues/${meta.number}`);
+        const comments = await githubJson(`${base}/issues/${meta.number}/comments?per_page=100`);
+        const query = encodeURIComponent(`repo:${meta.owner}/${meta.repo} ${meta.number} is:pr`);
+        const prs = await githubJson(`https://api.github.com/search/issues?q=${query}&per_page=1`);
+        renderResult(issue, meta, scoreIssue(issue, comments, prs));
+      }
+
+      form.addEventListener("submit", async (event) => {
+        event.preventDefault();
+        try {
+          await scan(input.value);
+        } catch (error) {
+          output.textContent = error.message;
+        }
+      });
+
+      samples.forEach((button) => {
+        button.addEventListener("click", () => {
+          input.value = button.dataset.url;
+          form.requestSubmit();
+        });
+      });
+    </script>
   </body>
 </html>
