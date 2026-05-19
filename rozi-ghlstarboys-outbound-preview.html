@@ -3,15 +3,15 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Cold Email Ops System</title>
-    <meta name="description" content="A fixed-scope cold email operations system for agencies: lead queue, duplicate guard, reply triage, CRM handoff, and operator runbook.">
-    <link rel="canonical" href="./cold-email-ops-system.html">
+    <title>Rozi / GHLStarboys Outbound Ops Preview</title>
+    <meta name="description" content="A 48-hour cold-email operations preview for Rozi / GHLStarboys: lead queue, duplicate guard, reply triage, and GHL handoff.">
+    <link rel="canonical" href="./rozi-ghlstarboys-outbound-preview.html">
     <style>
       :root {
         --ink: #17201f;
-        --muted: #5b6663;
+        --muted: #5c6764;
         --paper: #fbfbf8;
-        --band: #eef3ef;
+        --band: #edf3ef;
         --white: #ffffff;
         --line: #d7dfdb;
         --green: #176b4d;
@@ -67,7 +67,7 @@
 
       .hero {
         display: grid;
-        grid-template-columns: minmax(0, 0.98fr) minmax(320px, 0.82fr);
+        grid-template-columns: minmax(0, 0.98fr) minmax(320px, 0.84fr);
         gap: clamp(26px, 5vw, 70px);
         align-items: center;
         min-height: 78vh;
@@ -140,7 +140,7 @@
         color: var(--white);
       }
 
-      .console {
+      .board {
         background: var(--white);
         border: 1px solid var(--line);
         border-radius: 8px;
@@ -148,7 +148,7 @@
         overflow: hidden;
       }
 
-      .console-head {
+      .board-head {
         display: flex;
         justify-content: space-between;
         gap: 14px;
@@ -156,24 +156,24 @@
         border-bottom: 1px solid var(--line);
       }
 
-      .console-head span {
+      .board-head span {
         color: var(--green);
         font-size: 13px;
         font-weight: 780;
       }
 
-      .ledger {
+      .lead-list {
         display: grid;
         gap: 10px;
         padding: 16px;
       }
 
-      .ledger-row {
+      .lead-row {
         display: grid;
-        grid-template-columns: 88px minmax(0, 1fr) 86px;
+        grid-template-columns: 84px minmax(0, 1fr) 92px;
         gap: 10px;
         align-items: center;
-        min-height: 54px;
+        min-height: 58px;
         border: 1px solid var(--line);
         border-radius: 8px;
         padding: 10px;
@@ -187,27 +187,28 @@
         color: var(--muted);
         font-size: 12px;
         font-weight: 720;
+        text-transform: uppercase;
       }
 
-      .badge.clear {
+      .badge.good {
         color: var(--green);
         border-color: rgba(23, 107, 77, 0.35);
         background: #f0f7f2;
       }
 
-      .badge.blocked {
-        color: var(--red);
-        border-color: rgba(159, 63, 54, 0.35);
-        background: #fbf0ef;
+      .badge.warn {
+        color: var(--amber);
+        border-color: rgba(167, 101, 18, 0.35);
+        background: #fbf5e8;
       }
 
-      .ledger-row b,
-      .ledger-row small {
+      .lead-row b,
+      .lead-row small {
         display: block;
         overflow-wrap: anywhere;
       }
 
-      .ledger-row small {
+      .lead-row small {
         color: var(--muted);
       }
 
@@ -216,7 +217,7 @@
       }
 
       .section-head {
-        max-width: 780px;
+        max-width: 820px;
         margin-bottom: 26px;
       }
 
@@ -241,6 +242,35 @@
         margin: 10px 0 0;
       }
 
+      .map {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .step {
+        min-height: 168px;
+        background: var(--white);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 18px;
+        position: relative;
+      }
+
+      .step::before {
+        content: attr(data-step);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: var(--band);
+        color: var(--green);
+        font-weight: 800;
+        margin-bottom: 18px;
+      }
+
       .stack {
         display: grid;
         gap: 12px;
@@ -248,7 +278,7 @@
 
       .stack-row {
         display: grid;
-        grid-template-columns: minmax(140px, 0.38fr) minmax(0, 1fr);
+        grid-template-columns: minmax(150px, 0.34fr) minmax(0, 1fr);
         gap: 16px;
         padding: 14px 0;
         border-bottom: 1px solid var(--line);
@@ -298,7 +328,7 @@
         font-size: 14px;
       }
 
-      @media (max-width: 880px) {
+      @media (max-width: 940px) {
         header {
           align-items: flex-start;
           flex-direction: column;
@@ -306,6 +336,7 @@
 
         .hero,
         .grid,
+        .map,
         .price-band {
           grid-template-columns: 1fr;
         }
@@ -314,7 +345,7 @@
           min-height: auto;
         }
 
-        .ledger-row,
+        .lead-row,
         .stack-row {
           grid-template-columns: 1fr;
         }
@@ -323,147 +354,142 @@
   </head>
   <body>
     <header>
-      <div class="brand">Cold Email Ops System</div>
+      <div class="brand">Rozi / GHLStarboys Outbound Ops Preview</div>
       <nav aria-label="Primary">
         <a href="index.html">Proof Home</a>
-        <a href="#system">System</a>
-        <a href="#delivery">Delivery</a>
-        <a href="#fund">Fund</a>
+        <a href="#lane">First Lane</a>
+        <a href="#handoff">GHL Handoff</a>
+        <a href="#pilot">Pilot</a>
       </nav>
     </header>
 
     <main>
       <section class="hero">
         <div>
-          <div class="eyebrow">48-hour outbound operations build for agencies</div>
-          <h1>Cold Email Ops System</h1>
-          <p>A controlled outbound machine for agencies that need leads, personalization, duplicate protection, reply triage, and CRM handoff without blasting the same buyer twice.</p>
+          <div class="eyebrow">Prepared for Arham / Rozi / GHLStarboys</div>
+          <h1>Outbound ops system for white-label GHL and VA fulfillment</h1>
+          <p>A focused 48-hour build that gives the Rozi team a duplicate-safe outbound lane, offer-specific templates, reply triage, and GHL handoff rules without turning the campaign into a blind bulk blast.</p>
           <div class="actions">
-            <a class="button primary" href="https://buy.polar.sh/polar_cl_z0eLsPUJeMwrcNs4MQPAQbKIM3Rbdb8fLDgVj2RZcmr">Fund $1,000 build</a>
-            <a class="button" href="proof/outbound_guard_demo.html">Run guard demo</a>
-            <a class="button" href="rozi-ghlstarboys-outbound-preview.html">Rozi preview</a>
+            <a class="button primary" href="#pilot">View $1,000 pilot</a>
+            <a class="button" href="cold-email-ops-system.html">Base system</a>
           </div>
         </div>
 
-        <div class="console" aria-label="Outbound ledger preview">
-          <div class="console-head">
-            <strong>Send Guard</strong>
-            <span>Duplicate-safe</span>
+        <div class="board" aria-label="Rozi outbound preview">
+          <div class="board-head">
+            <strong>First Batch Preview</strong>
+            <span>Low-volume, high-fit</span>
           </div>
-          <div class="ledger">
-            <div class="ledger-row">
-              <span class="badge clear">CLEAR</span>
+          <div class="lead-list">
+            <div class="lead-row">
+              <span class="badge good">Fit</span>
               <div>
-                <b>newagency.com/contact</b>
-                <small>No email, form, or source URL match in ledger</small>
+                <b>GHL agency owner</b>
+                <small>Already selling funnels, A2P, snapshots, and onboarding</small>
               </div>
-              <small>Ready</small>
+              <small>Ask: service menu</small>
             </div>
-            <div class="ledger-row">
-              <span class="badge blocked">BLOCK</span>
+            <div class="lead-row">
+              <span class="badge good">Fit</span>
               <div>
-                <b>founder@example.com</b>
-                <small>Prior sent row found with same target</small>
+                <b>AI automation agency</b>
+                <small>Sells demos but needs production fulfillment and QA</small>
               </div>
-              <small>Stop</small>
+              <small>Ask: overflow</small>
             </div>
-            <div class="ledger-row">
-              <span class="badge blocked">BOUNCE</span>
+            <div class="lead-row">
+              <span class="badge warn">Hold</span>
               <div>
-                <b>hello@bad-domain.test</b>
-                <small>Suppressed after delivery failure</small>
+                <b>Generic business owner</b>
+                <small>No public reason-fit signal; keep out of first batch</small>
               </div>
-              <small>Stop</small>
+              <small>Suppress</small>
             </div>
           </div>
         </div>
       </section>
 
-      <section id="system">
+      <section id="lane">
         <div class="section-head">
-          <h2>What gets built</h2>
-          <p>A practical operating layer for one offer, one target lane, and one responsible sender. The first version is intentionally small enough to run this week.</p>
+          <h2>The first lane</h2>
+          <p>Start with agencies that already sell GHL, VA, automation, or local-business growth and need fulfillment capacity. This is where Rozi can convert demand fastest because the pitch is operational relief, not another abstract AI promise.</p>
         </div>
         <div class="grid">
           <article class="card">
-            <h3>Lead Queue</h3>
-            <p>One buyer-only queue with source URL, fit reason, current status, and next action so operators stop improvising.</p>
+            <h3>Buyer</h3>
+            <p>Agency owners with delivery bottlenecks, inconsistent freelancers, or GHL client cleanup work.</p>
           </article>
           <article class="card">
-            <h3>Duplicate Guard</h3>
-            <p>A contact ledger and check command that blocks sent, bounced, submitted, posted, and cross-channel duplicates.</p>
+            <h3>Offer</h3>
+            <p>White-label VA, GHL, AI automation, onboarding, support, and project coordination behind their brand.</p>
           </article>
           <article class="card">
-            <h3>Reply Triage</h3>
-            <p>Simple labels and response paths for interested, scope requested, not now, bounced, and wrong-person outcomes.</p>
+            <h3>Conversion Event</h3>
+            <p>Interested reply, service-menu request, current fulfillment problem, or call request routed into GHL.</p>
           </article>
         </div>
       </section>
 
-      <section id="delivery">
+      <section>
         <div class="section-head">
-          <h2>48-hour delivery</h2>
-          <p>The system is built around an offer your agency already sells, such as GHL services, VA placement, AI automation, or local-business growth.</p>
+          <h2>Campaign guardrails</h2>
+          <p>The system is built to protect sender reputation and prevent embarrassing double-taps before volume goes up.</p>
         </div>
         <div class="card">
           <div class="stack">
             <div class="stack-row">
-              <strong>Hour 0-8</strong>
-              <span>Confirm offer lane, target exclusion rules, sender constraints, and CRM handoff fields.</span>
+              <strong>Qualified only</strong>
+              <span>Every row needs a source URL and a short reason-fit note before a first-touch email is drafted.</span>
             </div>
             <div class="stack-row">
-              <strong>Hour 8-24</strong>
-              <span>Build lead queue, ledger schema, duplicate guard, first templates, and operator checklist.</span>
+              <strong>Duplicate blocked</strong>
+              <span>The contact ledger suppresses prior sent, bounced, form-submitted, and source-URL duplicates across channels.</span>
             </div>
             <div class="stack-row">
-              <strong>Hour 24-40</strong>
-              <span>Run a controlled sample batch or dry run, classify replies/bounces, and tighten guard rules.</span>
+              <strong>Reply triaged</strong>
+              <span>Interested, later, wrong-person, bounced, and no-fit replies get a clear owner and next action.</span>
             </div>
             <div class="stack-row">
-              <strong>Hour 40-48</strong>
-              <span>Deliver runbook, handoff, template pack, CRM mapping, and next-batch operating rules.</span>
+              <strong>Scale after signal</strong>
+              <span>Run a small proof batch first, then only increase volume after reply quality and bounce rate are known.</span>
             </div>
           </div>
         </div>
       </section>
 
-      <section>
+      <section id="handoff">
         <div class="section-head">
-          <h2>Best-fit buyers</h2>
-          <p>This is for agencies that already sell something and need a clean outbound operating system, not a promise of instant magic.</p>
+          <h2>GHL handoff map</h2>
+          <p>The goal is not a fancy spreadsheet. It is a small system where qualified replies become opportunities that Arham or an operator can work immediately.</p>
         </div>
-        <div class="grid">
-          <article class="card">
-            <h3>GHL and AI Agencies</h3>
-            <p>Offer-specific outbound with reply routing into HighLevel or a simple CRM sheet.</p>
+        <div class="map">
+          <article class="step" data-step="1">
+            <h3>Lead Queue</h3>
+            <p>Agency, owner, source, offer angle, reason fit, and exclusion checks.</p>
           </article>
-          <article class="card">
-            <h3>VA and Staffing Shops</h3>
-            <p>Clean lead lanes, role-specific templates, and duplicate-safe operator rules for SDR-style work.</p>
+          <article class="step" data-step="2">
+            <h3>Send Guard</h3>
+            <p>Check email and source URL against the ledger before every send or form action.</p>
           </article>
-          <article class="card">
-            <h3>Service Fulfillment Teams</h3>
-            <p>A small repeatable process for sourcing buyers without losing trust through messy follow-up.</p>
+          <article class="step" data-step="3">
+            <h3>Reply Label</h3>
+            <p>Interested, later, wrong-person, no-fit, and bounced labels keep the inbox usable.</p>
+          </article>
+          <article class="step" data-step="4">
+            <h3>GHL Opportunity</h3>
+            <p>Interested replies get offer, source, need, and next-step notes in the right pipeline stage.</p>
           </article>
         </div>
       </section>
 
-      <section>
-        <div class="section-head">
-          <h2>Buyer-specific preview</h2>
-          <p>A Rozi / GHLStarboys version maps the first offer lane, suppression rules, reply labels, and GHL opportunity handoff into one concrete pilot.</p>
-        </div>
-        <a class="button" href="rozi-ghlstarboys-outbound-preview.html">Open Rozi / GHLStarboys preview</a>
-      </section>
-
-      <section id="fund">
+      <section id="pilot">
         <div class="price-band">
           <div>
-            <h2>$1,000 fixed build</h2>
-            <p>One outbound ops system, one offer lane, one handoff. Payment starts the 48-hour build window.</p>
+            <h2>$1,000 fixed pilot</h2>
+            <p>48 hours after funding and input handoff. Deliverables: lead queue schema, duplicate-safe ledger, send guard, three first-touch angles, two reply templates, GHL handoff map, and operator runbook for one Rozi offer lane.</p>
             <div class="actions">
               <a class="button primary" href="https://buy.polar.sh/polar_cl_z0eLsPUJeMwrcNs4MQPAQbKIM3Rbdb8fLDgVj2RZcmr">Fund $1,000 build</a>
-              <a class="button" href="mailto:sravan272001@gmail.com?subject=Cold%20Email%20Ops%20System">Ask for scope</a>
+              <a class="button" href="proof/outbound_guard_demo.html">Guard demo</a>
             </div>
           </div>
           <div class="price">$1,000</div>
@@ -472,7 +498,7 @@
     </main>
 
     <footer>
-      Sravan Sridhar · AI automation builder · Duplicate-safe outbound ops, GHL workflows, and proof-led rescue sprints.
+      Sravan Sridhar · AI automation builder · Prepared as a focused preview for Rozi / GHLStarboys.
     </footer>
   </body>
 </html>
