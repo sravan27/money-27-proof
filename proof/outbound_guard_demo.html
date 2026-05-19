@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Outbound Guard Demo</title>
+    <meta name="description" content="Interactive proof demo for duplicate-safe cold email operations: lead queue, contact ledger, send guard, and reply triage.">
+    <style>
+      :root {
+        --ink: #17201f;
+        --muted: #5b6663;
+        --paper: #fbfbf8;
+        --band: #eef3ef;
+        --line: #d7dfdb;
+        --white: #fff;
+        --green: #176b4d;
+        --teal: #0e6b75;
+        --amber: #a76512;
+        --red: #9f3f36;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: var(--ink);
+        background: var(--paper);
+        line-height: 1.45;
+      }
+
+      a { color: inherit; }
+
+      header,
+      main,
+      footer {
+        padding-inline: clamp(18px, 5vw, 64px);
+      }
+
+      header {
+        min-height: 42vh;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(280px, 0.7fr);
+        gap: clamp(24px, 5vw, 64px);
+        align-items: center;
+        padding-block: clamp(36px, 6vw, 74px);
+        background: var(--band);
+      }
+
+      .eyebrow {
+        color: var(--green);
+        font-weight: 760;
+        margin-bottom: 12px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(38px, 7vw, 76px);
+        line-height: 0.94;
+        letter-spacing: 0;
+      }
+
+      h2 {
+        margin: 0 0 12px;
+        font-size: clamp(24px, 3vw, 34px);
+        letter-spacing: 0;
+      }
+
+      h3 {
+        margin: 0 0 8px;
+        font-size: 16px;
+      }
+
+      p {
+        color: var(--muted);
+        font-size: 17px;
+      }
+
+      .panel,
+      .card,
+      .result {
+        background: var(--white);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+      }
+
+      .panel {
+        padding: 18px;
+      }
+
+      .status-row {
+        display: grid;
+        gap: 10px;
+      }
+
+      .status-item {
+        display: flex;
+        justify-content: space-between;
+        gap: 14px;
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 10px;
+      }
+
+      .status-item:last-child {
+        border-bottom: 0;
+        padding-bottom: 0;
+      }
+
+      .status-item strong {
+        font-size: 13px;
+      }
+
+      .status-item span {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      main {
+        display: grid;
+        grid-template-columns: minmax(300px, 0.82fr) minmax(0, 1.18fr);
+        gap: 18px;
+        padding-block: clamp(30px, 5vw, 58px);
+      }
+
+      .card {
+        padding: 18px;
+      }
+
+      label {
+        display: block;
+        color: var(--muted);
+        font-size: 13px;
+        margin: 12px 0 5px;
+      }
+
+      input,
+      select,
+      textarea {
+        width: 100%;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--white);
+        color: var(--ink);
+        font: inherit;
+        padding: 10px 12px;
+      }
+
+      textarea {
+        min-height: 86px;
+        resize: vertical;
+      }
+
+      button,
+      .button {
+        min-height: 42px;
+        border: 1px solid var(--ink);
+        border-radius: 8px;
+        padding: 0 14px;
+        background: var(--ink);
+        color: var(--white);
+        font-weight: 760;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .button.secondary {
+        background: var(--white);
+        color: var(--ink);
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 16px;
+      }
+
+      .result {
+        margin-top: 16px;
+        padding: 14px;
+      }
+
+      .result.allowed {
+        border-color: rgba(23, 107, 77, 0.45);
+        background: #f0f7f2;
+      }
+
+      .result.blocked {
+        border-color: rgba(159, 63, 54, 0.45);
+        background: #fbf0ef;
+      }
+
+      .result.needs-review {
+        border-color: rgba(167, 101, 18, 0.45);
+        background: #fbf7ef;
+      }
+
+      .result b {
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+
+      .metric {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 14px;
+        background: var(--white);
+      }
+
+      .metric strong {
+        display: block;
+        font-size: 26px;
+        color: var(--teal);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed;
+        background: var(--white);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      th,
+      td {
+        text-align: left;
+        border-bottom: 1px solid var(--line);
+        padding: 10px;
+        font-size: 13px;
+        vertical-align: top;
+        overflow-wrap: anywhere;
+      }
+
+      th {
+        background: var(--band);
+        color: var(--muted);
+        font-weight: 760;
+      }
+
+      tr:last-child td { border-bottom: 0; }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        padding: 3px 8px;
+        font-size: 12px;
+        font-weight: 760;
+        background: var(--band);
+      }
+
+      .pill.sent { color: var(--green); }
+      .pill.bounced { color: var(--red); }
+      .pill.drafted { color: var(--amber); }
+
+      footer {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+        justify-content: space-between;
+        border-top: 1px solid var(--line);
+        padding-block: 22px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      @media (max-width: 900px) {
+        header,
+        main,
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div>
+        <div class="eyebrow">Cold email ops proof</div>
+        <h1>Outbound Guard Demo</h1>
+        <p>Check a target before outreach, block duplicate sends, and keep replies/bounces out of the blind spot.</p>
+        <div class="actions">
+          <a class="button" href="mailto:sravan272001@gmail.com?subject=Cold%20email%20ops%20system">Request setup</a>
+          <a class="button secondary" href="../voice-ai-ghl-rescue.html">Voice AI rescue offer</a>
+        </div>
+      </div>
+      <aside class="panel">
+        <div class="status-row">
+          <div class="status-item"><strong>Current offer</strong><span>48-hour outbound ops setup</span></div>
+          <div class="status-item"><strong>Guard mode</strong><span>blocks sent, bounced, submitted</span></div>
+          <div class="status-item"><strong>Sender path</strong><span>Gmail first, Smartlead/Instantly for scale</span></div>
+          <div class="status-item"><strong>Close path</strong><span>$1,000 fixed pilot</span></div>
+        </div>
+      </aside>
+    </header>
+
+    <main>
+      <section class="card">
+        <h2>Send Guard</h2>
+        <label for="target">Target email or domain</label>
+        <input id="target" value="arhamabid77@gmail.com" autocomplete="off">
+
+        <label for="channel">Channel</label>
+        <select id="channel">
+          <option>Email</option>
+          <option>Form</option>
+          <option>Community reply</option>
+        </select>
+
+        <label for="source">Source or campaign</label>
+        <input id="source" value="GHL voice AI partner campaign" autocomplete="off">
+
+        <label for="notes">Operator note</label>
+        <textarea id="notes">Partner asked about cold-email system. Reply should move to scope/payment, not another generic pitch.</textarea>
+
+        <div class="actions">
+          <button type="button" id="check">Check target</button>
+          <button type="button" id="sample-clear">Try clear sample</button>
+          <button type="button" id="sample-bounce">Try bounced sample</button>
+        </div>
+
+        <div class="result needs-review" id="result">
+          <b>Ready</b>
+          Enter a target and run the guard.
+        </div>
+      </section>
+
+      <section>
+        <div class="grid">
+          <div class="metric"><span>Qualified</span><strong>37</strong><small>buyer-fit leads</small></div>
+          <div class="metric"><span>Blocked</span><strong>14</strong><small>duplicates/bounces</small></div>
+          <div class="metric"><span>Replies</span><strong>2</strong><small>needs human close</small></div>
+        </div>
+
+        <h2>Contact Ledger</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Status</th>
+              <th>Target</th>
+              <th>Offer</th>
+              <th>Next Action</th>
+            </tr>
+          </thead>
+          <tbody id="ledger"></tbody>
+        </table>
+      </section>
+    </main>
+
+    <footer>
+      <span>Duplicate-safe outbound, not a bulk spam workflow.</span>
+      <a href="https://buy.polar.sh/polar_cl_z0eLsPUJeMwrcNs4MQPAQbKIM3Rbdb8fLDgVj2RZcmr">Fund $1,000 pilot</a>
+    </footer>
+
+    <script>
+      const ledger = [
+        {
+          status: "sent",
+          target: "arhamabid77@gmail.com",
+          offer: "Cold-email ops build",
+          next: "Wait for scope/payment confirmation"
+        },
+        {
+          status: "bounced",
+          target: "hello@agentvoice.com",
+          offer: "Voice-agent reliability pilot",
+          next: "Suppress email; only retry verified alternate"
+        },
+        {
+          status: "sent",
+          target: "sales@movoice.ai",
+          offer: "Production QA/rescue pilot",
+          next: "Monitor for reply or bounce"
+        },
+        {
+          status: "drafted",
+          target: "new.partner@example.com",
+          offer: "Agency overflow sprint",
+          next: "Safe to review; not sent"
+        }
+      ];
+
+      const ledgerBody = document.querySelector("#ledger");
+      const targetInput = document.querySelector("#target");
+      const result = document.querySelector("#result");
+
+      function renderLedger() {
+        ledgerBody.innerHTML = ledger.map((row) => `
+          <tr>
+            <td><span class="pill ${row.status}">${row.status}</span></td>
+            <td>${row.target}</td>
+            <td>${row.offer}</td>
+            <td>${row.next}</td>
+          </tr>
+        `).join("");
+      }
+
+      function normalize(value) {
+        return value.trim().toLowerCase();
+      }
+
+      function runGuard() {
+        const target = normalize(targetInput.value);
+        const match = ledger.find((row) => normalize(row.target) === target);
+
+        if (!target) {
+          result.className = "result needs-review";
+          result.innerHTML = "<b>Needs target</b>Add an email or domain before outreach.";
+          return;
+        }
+
+        if (match && ["sent", "bounced", "submitted", "posted", "dm_sent"].includes(match.status)) {
+          result.className = "result blocked";
+          result.innerHTML = `<b>Blocked</b>${match.target} is already ${match.status}. Next action: ${match.next}.`;
+          return;
+        }
+
+        if (match && match.status === "drafted") {
+          result.className = "result needs-review";
+          result.innerHTML = `<b>Review draft</b>${match.target} is drafted, not sent. Check copy and approval before outreach.`;
+          return;
+        }
+
+        result.className = "result allowed";
+        result.innerHTML = "<b>Clear</b>No sent/bounced/submitted ledger entry found. Personalize before sending.";
+      }
+
+      document.querySelector("#check").addEventListener("click", runGuard);
+      document.querySelector("#sample-clear").addEventListener("click", () => {
+        targetInput.value = "ops@cleanbuyer.com";
+        runGuard();
+      });
+      document.querySelector("#sample-bounce").addEventListener("click", () => {
+        targetInput.value = "hello@agentvoice.com";
+        runGuard();
+      });
+
+      renderLedger();
+      runGuard();
+    </script>
+  </body>
+</html>
