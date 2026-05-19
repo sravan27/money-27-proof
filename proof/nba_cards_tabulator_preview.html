@@ -1,0 +1,636 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>C.A.R.D.S. Tabulator Dashboard Preview</title>
+    <meta name="description" content="Live proof preview for the C.A.R.D.S. paid Tabulator dashboard gig.">
+    <link rel="canonical" href="./nba_cards_tabulator_preview.html">
+    <link rel="stylesheet" href="https://unpkg.com/tabulator-tables@6.3.1/dist/css/tabulator.min.css">
+    <style>
+      :root {
+        --navy: #0d1b3e;
+        --ink: #07111f;
+        --panel: #0f1b30;
+        --panel-2: #14233d;
+        --gold: #f5a623;
+        --cyan: #38bdf8;
+        --green: #22c55e;
+        --muted: #94a3b8;
+        --line: rgba(245, 166, 35, 0.32);
+        --white: #f8fafc;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: #081326;
+        color: var(--white);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.5;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 18px clamp(18px, 4vw, 46px);
+        border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+        background: rgba(8, 19, 38, 0.96);
+      }
+
+      .brand {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .brand strong {
+        color: #ffffff;
+        font-size: 15px;
+        font-weight: 850;
+      }
+
+      .brand span {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .pr-link {
+        min-height: 40px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        color: var(--ink);
+        background: var(--gold);
+        padding: 0 14px;
+        text-decoration: none;
+        font-weight: 850;
+      }
+
+      main {
+        padding: clamp(22px, 5vw, 46px);
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) minmax(260px, 0.7fr);
+        gap: clamp(20px, 4vw, 40px);
+        align-items: end;
+        margin-bottom: 20px;
+      }
+
+      .eyebrow {
+        margin: 0 0 8px;
+        color: var(--gold);
+        font-size: 13px;
+        font-weight: 850;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0;
+        color: #ffffff;
+        font-size: clamp(36px, 6vw, 72px);
+        line-height: 0.96;
+        letter-spacing: 0;
+      }
+
+      .hero p {
+        max-width: 760px;
+        margin: 18px 0 0;
+        color: #cbd5e1;
+        font-size: clamp(16px, 2vw, 20px);
+      }
+
+      .controls {
+        display: grid;
+        gap: 10px;
+        padding: 16px;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        border-radius: 8px;
+        background: rgba(15, 27, 48, 0.88);
+      }
+
+      label {
+        color: var(--gold);
+        font-size: 12px;
+        font-weight: 850;
+        text-transform: uppercase;
+      }
+
+      input {
+        width: 100%;
+        min-height: 46px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #07111f;
+        color: #ffffff;
+        font: inherit;
+        padding: 0 13px;
+        outline: none;
+      }
+
+      input:focus {
+        border-color: var(--gold);
+        box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.18);
+      }
+
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+        margin: 18px 0;
+      }
+
+      .metric {
+        min-height: 82px;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        border-radius: 8px;
+        background: linear-gradient(145deg, rgba(20, 35, 61, 0.96), rgba(11, 22, 41, 0.96));
+        padding: 13px;
+      }
+
+      .metric span {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 760;
+        text-transform: uppercase;
+      }
+
+      .metric strong {
+        display: block;
+        margin-top: 5px;
+        color: #ffffff;
+        font-size: 24px;
+        font-weight: 900;
+      }
+
+      .table-shell {
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--ink);
+      }
+
+      .proof-points {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 18px;
+      }
+
+      .review-note {
+        margin-top: 18px;
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        border-radius: 8px;
+        background: rgba(7, 17, 31, 0.72);
+        padding: 16px;
+      }
+
+      .review-note h2 {
+        margin: 0 0 8px;
+        color: #ffffff;
+        font-size: 17px;
+      }
+
+      .review-note p {
+        margin: 0;
+        color: #cbd5e1;
+        max-width: 900px;
+      }
+
+      .proof-point {
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        border-radius: 8px;
+        background: rgba(15, 27, 48, 0.72);
+        padding: 13px;
+      }
+
+      .proof-point h2 {
+        margin: 0 0 6px;
+        color: #ffffff;
+        font-size: 15px;
+      }
+
+      .proof-point p {
+        margin: 0;
+        color: #cbd5e1;
+        font-size: 14px;
+      }
+
+      .loading {
+        padding: 14px;
+        color: #fde68a;
+      }
+
+      .tabulator {
+        border: 0;
+        background: var(--ink);
+        color: #e5e7eb;
+        font-family: inherit;
+      }
+
+      .tabulator .tabulator-header {
+        border-bottom: 1px solid rgba(245, 166, 35, 0.45);
+        background: var(--navy);
+        color: #f8fafc;
+        font-weight: 850;
+      }
+
+      .tabulator .tabulator-header .tabulator-col {
+        border-right: 1px solid rgba(245, 166, 35, 0.18);
+        background: var(--navy);
+      }
+
+      .tabulator .tabulator-header .tabulator-col .tabulator-col-content {
+        padding: 13px 11px;
+      }
+
+      .tabulator-row {
+        min-height: 68px;
+        border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+        background: #0b1629;
+        color: #e5e7eb;
+      }
+
+      .tabulator-row.tabulator-row-even {
+        background: var(--panel);
+      }
+
+      .tabulator-row:hover {
+        background: rgba(245, 166, 35, 0.12);
+      }
+
+      .tabulator-row .tabulator-cell {
+        border-right: 1px solid rgba(148, 163, 184, 0.1);
+        padding: 12px 11px;
+        line-height: normal;
+        vertical-align: middle;
+      }
+
+      .tabulator-footer {
+        border-top: 1px solid rgba(245, 166, 35, 0.34);
+        background: var(--navy);
+        color: #cbd5e1;
+      }
+
+      .tabulator-page {
+        border: 1px solid rgba(245, 166, 35, 0.36);
+        border-radius: 6px;
+        background: #07111f;
+        color: #f8fafc;
+      }
+
+      .tabulator-page.active {
+        background: var(--gold);
+        color: var(--ink);
+        font-weight: 850;
+      }
+
+      .card-avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 999px;
+        border: 2px solid var(--gold);
+        background: var(--navy);
+        object-fit: cover;
+      }
+
+      .card-title-cell {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .card-title-cell strong {
+        color: #ffffff;
+        font-size: 15px;
+        font-weight: 850;
+      }
+
+      .card-title-cell span {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .grade-badge,
+      .status-tag {
+        min-width: 76px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        padding: 4px 10px;
+        font-size: 12px;
+        font-weight: 900;
+      }
+
+      .grade-badge--gem {
+        background: rgba(34, 197, 94, 0.2);
+        color: #86efac;
+      }
+
+      .grade-badge--graded {
+        background: rgba(245, 166, 35, 0.18);
+        color: #facc15;
+      }
+
+      .grade-badge--raw {
+        background: rgba(148, 163, 184, 0.18);
+        color: #cbd5e1;
+      }
+
+      .status-tag {
+        min-width: 92px;
+        background: rgba(56, 189, 248, 0.16);
+        color: #bae6fd;
+      }
+
+      .currency-cell {
+        color: var(--gold);
+        font-weight: 900;
+      }
+
+      @media (max-width: 880px) {
+        header,
+        .hero {
+          align-items: stretch;
+          grid-template-columns: 1fr;
+        }
+
+        header {
+          flex-direction: column;
+        }
+
+        .metrics {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .proof-points {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 560px) {
+        main {
+          padding: 16px;
+        }
+
+        .metrics {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="brand">
+        <strong>C.A.R.D.S. paid gig preview</strong>
+        <span>Tabulator.js dashboard table, published separately because the PR Vercel check requires team authorization.</span>
+      </div>
+      <a class="pr-link" href="https://github.com/nicocaparas/nba-cards-inventory/pull/4">Open PR #4</a>
+    </header>
+
+    <main>
+      <section class="hero" aria-labelledby="title">
+        <div>
+          <p class="eyebrow">Navy / gold pro dashboard</p>
+          <h1 id="title">NBA card inventory table</h1>
+          <p>
+            The submitted PR wires mock NBA card data into an interactive Tabulator table with round player avatars,
+            bold card titles, grade badges, formatted values, status tags, sortable value/grade/date columns,
+            global player search, and 20-row pagination.
+          </p>
+        </div>
+        <div class="controls">
+          <label for="player-search">Global player search</label>
+          <input id="player-search" type="search" placeholder="Search Jordan, Curry, Wembanyama...">
+        </div>
+      </section>
+
+      <section class="metrics" aria-label="Collection summary">
+        <div class="metric"><span>Total cards</span><strong id="metric-cards">26</strong></div>
+        <div class="metric"><span>Total value</span><strong id="metric-value">$389,450</strong></div>
+        <div class="metric"><span>PSA 10</span><strong id="metric-gem">10</strong></div>
+        <div class="metric"><span>Raw review</span><strong id="metric-raw">2</strong></div>
+      </section>
+
+      <section class="table-shell" aria-label="Interactive NBA cards table">
+        <div id="table-loading" class="loading">Loading interactive table...</div>
+        <div id="cards-table"></div>
+      </section>
+
+      <section class="proof-points" aria-label="Submission proof points">
+        <article class="proof-point">
+          <h2>Matches the gig scope</h2>
+          <p>Uses Tabulator.js, navy/gold styling, mock NBA card rows, avatars, grade badges, formatted card values, status tags, player search, and 20-row pagination.</p>
+        </article>
+        <article class="proof-point">
+          <h2>Ready for private data</h2>
+          <p>The React PR normalizes existing collection records when available and falls back to this demo dataset when the private C.A.R.D.S. mock JSON is not present.</p>
+        </article>
+        <article class="proof-point">
+          <h2>Validated locally</h2>
+          <p>The submitted branch passed the React test command, production build, and a browser smoke test that confirmed rendering and Jordan search behavior.</p>
+        </article>
+      </section>
+
+      <section class="review-note" aria-label="Review note">
+        <h2>Maintainer review note</h2>
+        <p>
+          This hosted preview is intentionally separate from the target repository. The GitHub pull request keeps the real implementation inside the existing React collection route, while this page gives reviewers a zero-login way to inspect the interaction, styling, row density, and Tabulator behavior after the Vercel preview was blocked by team authorization. The submitted branch can still be wired to the private C.A.R.D.S. mock JSON or backend shape once the maintainer shares the expected fields. It is designed to make the paid review decision faster without requiring production access.
+        </p>
+      </section>
+    </main>
+
+    <script src="https://unpkg.com/tabulator-tables@6.3.1/dist/js/tabulator.min.js"></script>
+    <script>
+      const palette = [
+        ['#f5a623', '#0d1b3e'],
+        ['#22c55e', '#06151f'],
+        ['#38bdf8', '#071828'],
+        ['#f97316', '#17130a'],
+        ['#a3e635', '#111a07'],
+      ];
+
+      function initialsFor(name) {
+        return name
+          .split(' ')
+          .filter(Boolean)
+          .slice(0, 2)
+          .map((part) => part[0].toUpperCase())
+          .join('');
+      }
+
+      function avatarDataUri(name, index) {
+        const colors = palette[index % palette.length];
+        const svg =
+          '<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">' +
+          '<rect width="96" height="96" rx="48" fill="' + colors[1] + '"/>' +
+          '<circle cx="48" cy="48" r="42" fill="none" stroke="' + colors[0] + '" stroke-width="5"/>' +
+          '<text x="48" y="57" text-anchor="middle" font-size="28" font-family="Inter, Arial, sans-serif" font-weight="800" fill="' + colors[0] + '">' + initialsFor(name) + '</text>' +
+          '</svg>';
+        return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+      }
+
+      function card(id, playerName, year, brand, gradeLabel, value, status, dateAdded, index) {
+        const lastName = playerName.split(' ').slice(-1)[0];
+        const rawGrade = gradeLabel === 'Raw' ? 0 : Number(gradeLabel.replace(/[^0-9.]/g, ''));
+        return {
+          id,
+          playerName,
+          avatar: avatarDataUri(playerName, index),
+          cardTitle: year + ' ' + brand + ' ' + lastName,
+          gradeLabel,
+          gradeSort: rawGrade,
+          value,
+          status,
+          dateAdded,
+        };
+      }
+
+      const rows = [
+        card(1, 'Michael Jordan', 1986, 'Fleer', 'PSA 10', 238000, 'Vaulted', '2026-05-10', 0),
+        card(2, 'LeBron James', 2003, 'Topps Chrome', 'PSA 10', 42500, 'For Sale', '2026-05-06', 1),
+        card(3, 'Kobe Bryant', 1996, 'Topps Chrome', 'PSA 9', 18500, 'Vaulted', '2026-04-27', 2),
+        card(4, 'Stephen Curry', 2009, 'Topps Chrome', 'PSA 10', 30200, 'Watch', '2026-04-22', 3),
+        card(5, 'Victor Wembanyama', 2023, 'Prizm Silver', 'PSA 10', 6200, 'Incoming', '2026-04-19', 4),
+        card(6, 'Luka Doncic', 2018, 'Prizm Silver', 'PSA 10', 9400, 'For Sale', '2026-04-15', 5),
+        card(7, 'Giannis Antetokounmpo', 2013, 'Prizm', 'PSA 9', 7600, 'Vaulted', '2026-04-09', 6),
+        card(8, 'Kevin Durant', 2007, 'Topps Chrome', 'PSA 9', 5600, 'Watch', '2026-04-02', 7),
+        card(9, 'Shaquille ONeal', 1992, 'Stadium Club Beam Team', 'PSA 8', 2100, 'Vaulted', '2026-03-27', 8),
+        card(10, 'Allen Iverson', 1996, 'Topps Chrome', 'PSA 9', 3900, 'For Sale', '2026-03-21', 9),
+        card(11, 'Tim Duncan', 1997, 'Topps Chrome', 'PSA 9', 2850, 'Vaulted', '2026-03-17', 10),
+        card(12, 'Dirk Nowitzki', 1998, 'Topps Chrome', 'PSA 9', 3100, 'Watch', '2026-03-10', 11),
+        card(13, 'Nikola Jokic', 2015, 'Prizm Silver', 'PSA 10', 4800, 'For Sale', '2026-03-04', 12),
+        card(14, 'Jayson Tatum', 2017, 'Prizm Silver', 'PSA 10', 3350, 'Vaulted', '2026-02-28', 13),
+        card(15, 'Anthony Edwards', 2020, 'Prizm Silver', 'PSA 10', 4100, 'Incoming', '2026-02-22', 14),
+        card(16, 'Ja Morant', 2019, 'Prizm Silver', 'PSA 9', 1150, 'Watch', '2026-02-16', 15),
+        card(17, 'Shai Gilgeous-Alexander', 2018, 'Prizm Silver', 'PSA 10', 2700, 'Vaulted', '2026-02-10', 16),
+        card(18, 'Carmelo Anthony', 2003, 'Topps Chrome Refractor', 'PSA 9', 1550, 'For Sale', '2026-02-04', 17),
+        card(19, 'Dwyane Wade', 2003, 'Topps Chrome', 'PSA 9', 1900, 'Vaulted', '2026-01-29', 18),
+        card(20, 'Chris Paul', 2005, 'Topps Chrome', 'PSA 9', 820, 'Watch', '2026-01-22', 19),
+        card(21, 'Tracy McGrady', 1997, 'Topps Chrome', 'PSA 8', 650, 'For Sale', '2026-01-18', 20),
+        card(22, 'Yao Ming', 2002, 'Topps Chrome', 'PSA 9', 1220, 'Vaulted', '2026-01-12', 21),
+        card(23, 'Zion Williamson', 2019, 'Prizm Silver', 'Raw', 480, 'Raw Review', '2026-01-07', 22),
+        card(24, 'Paolo Banchero', 2022, 'Prizm Silver', 'PSA 10', 740, 'Incoming', '2025-12-29', 23),
+        card(25, 'Chet Holmgren', 2022, 'Prizm Silver', 'PSA 10', 690, 'For Sale', '2025-12-21', 24),
+        card(26, 'Scoot Henderson', 2023, 'Prizm Silver', 'Raw', 210, 'Raw Review', '2025-12-12', 25),
+      ];
+
+      function escapeHtml(value) {
+        return String(value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      function gradeClass(label) {
+        if (label === 'Raw') return 'grade-badge--raw';
+        if (label.includes('10')) return 'grade-badge--gem';
+        return 'grade-badge--graded';
+      }
+
+      function currency(value) {
+        return new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: 'USD',
+          maximumFractionDigits: 0,
+        }).format(value || 0);
+      }
+
+      document.getElementById('metric-cards').textContent = String(rows.length);
+      document.getElementById('metric-value').textContent = currency(rows.reduce((sum, row) => sum + row.value, 0));
+      document.getElementById('metric-gem').textContent = String(rows.filter((row) => row.gradeLabel.includes('10')).length);
+      document.getElementById('metric-raw').textContent = String(rows.filter((row) => row.gradeLabel === 'Raw').length);
+
+      const table = new Tabulator('#cards-table', {
+        data: rows,
+        layout: 'fitColumns',
+        pagination: true,
+        paginationSize: 20,
+        height: '640px',
+        placeholder: 'No NBA cards match this view.',
+        initialSort: [{ column: 'value', dir: 'desc' }],
+        columns: [
+          {
+            title: '',
+            field: 'avatar',
+            width: 72,
+            hozAlign: 'center',
+            headerSort: false,
+            formatter: (cell) => {
+              const data = cell.getRow().getData();
+              return '<' + 'img class="card-avatar" src="' + cell.getValue() + '" alt="' + escapeHtml(data.playerName) + ' avatar">';
+            },
+          },
+          {
+            title: 'Card',
+            field: 'cardTitle',
+            minWidth: 260,
+            formatter: (cell) => {
+              const data = cell.getRow().getData();
+              return '<div class="card-title-cell"><strong>' + escapeHtml(data.cardTitle) + '</strong><span>' + escapeHtml(data.playerName) + '</span></div>';
+            },
+          },
+          {
+            title: 'Grade',
+            field: 'gradeSort',
+            width: 128,
+            sorter: 'number',
+            formatter: (cell) => {
+              const label = cell.getRow().getData().gradeLabel;
+              return '<span class="grade-badge ' + gradeClass(label) + '">' + escapeHtml(label) + '</span>';
+            },
+          },
+          {
+            title: 'Value',
+            field: 'value',
+            width: 140,
+            sorter: 'number',
+            hozAlign: 'right',
+            formatter: (cell) => '<span class="currency-cell">' + currency(cell.getValue()) + '</span>',
+          },
+          {
+            title: 'Status',
+            field: 'status',
+            width: 142,
+            formatter: (cell) => '<span class="status-tag">' + escapeHtml(cell.getValue()) + '</span>',
+          },
+          {
+            title: 'Date Added',
+            field: 'dateAdded',
+            width: 148,
+            sorter: 'date',
+            sorterParams: { format: 'yyyy-MM-dd' },
+          },
+        ],
+      });
+
+      table.on('tableBuilt', () => {
+        document.getElementById('table-loading').style.display = 'none';
+      });
+
+      document.getElementById('player-search').addEventListener('input', (event) => {
+        const term = event.target.value.trim().toLowerCase();
+        if (!term) {
+          table.clearFilter(true);
+          return;
+        }
+
+        table.setFilter((data, params) => data.playerName.toLowerCase().includes(params.term), { term });
+      });
+    </script>
+  </body>
+</html>
