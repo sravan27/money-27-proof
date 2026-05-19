@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Algora Bounty Signal Audit</title>
+    <meta name="description" content="A fast audit of bounty-market signal problems: stale boards, unsafe criteria, AI PR spam, trust gates, and Friday-fixable triage tooling.">
+    <style>
+      :root {
+        --ink: #151b1a;
+        --muted: #5b6664;
+        --paper: #fbfbf7;
+        --band: #eef3ef;
+        --line: #d8dfdc;
+        --green: #176b4d;
+        --blue: #1b5f89;
+        --amber: #a76616;
+        --red: #9f3f36;
+        --white: #ffffff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: var(--ink);
+        background: var(--paper);
+        line-height: 1.5;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 18px clamp(20px, 5vw, 64px);
+        border-bottom: 1px solid var(--line);
+        background: rgba(251, 251, 247, 0.96);
+        position: sticky;
+        top: 0;
+        z-index: 5;
+      }
+
+      .brand {
+        font-weight: 760;
+        font-size: 15px;
+      }
+
+      nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      nav a {
+        text-decoration: none;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.82fr);
+        gap: clamp(28px, 5vw, 70px);
+        align-items: stretch;
+        padding: clamp(44px, 8vw, 86px) clamp(20px, 5vw, 64px) 42px;
+        background: var(--band);
+      }
+
+      .eyebrow {
+        color: var(--green);
+        font-weight: 760;
+        font-size: 14px;
+        margin-bottom: 14px;
+      }
+
+      h1 {
+        font-size: clamp(38px, 7vw, 86px);
+        line-height: 0.96;
+        letter-spacing: 0;
+        margin: 0;
+      }
+
+      .lead {
+        color: var(--muted);
+        max-width: 760px;
+        font-size: clamp(18px, 2vw, 23px);
+        margin: 24px 0 0;
+      }
+
+      .hero-panel {
+        background: var(--white);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 22px;
+        display: grid;
+        gap: 14px;
+      }
+
+      .metric {
+        border-left: 4px solid var(--green);
+        padding-left: 14px;
+      }
+
+      .metric strong {
+        display: block;
+        font-size: 28px;
+        line-height: 1.05;
+      }
+
+      .metric span {
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      main {
+        padding: 0 clamp(20px, 5vw, 64px) 70px;
+      }
+
+      section {
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 48px 0 0;
+      }
+
+      h2 {
+        font-size: clamp(28px, 4vw, 44px);
+        line-height: 1.02;
+        letter-spacing: 0;
+        margin: 0 0 18px;
+      }
+
+      h3 {
+        font-size: 19px;
+        margin: 0 0 8px;
+      }
+
+      p {
+        color: var(--muted);
+        margin: 0 0 16px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .card {
+        background: var(--white);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 18px;
+      }
+
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        min-height: 26px;
+        padding: 0 9px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 760;
+        border: 1px solid var(--line);
+        color: var(--ink);
+        background: #f6f7f4;
+        margin-bottom: 12px;
+      }
+
+      .tag.red {
+        color: var(--red);
+        border-color: rgba(159, 63, 54, 0.28);
+        background: rgba(159, 63, 54, 0.08);
+      }
+
+      .tag.amber {
+        color: var(--amber);
+        border-color: rgba(167, 102, 22, 0.28);
+        background: rgba(167, 102, 22, 0.08);
+      }
+
+      .tag.blue {
+        color: var(--blue);
+        border-color: rgba(27, 95, 137, 0.28);
+        background: rgba(27, 95, 137, 0.08);
+      }
+
+      .evidence {
+        display: grid;
+        gap: 12px;
+      }
+
+      .evidence-row {
+        display: grid;
+        grid-template-columns: 170px minmax(0, 1fr) 150px;
+        gap: 16px;
+        align-items: start;
+        background: var(--white);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 14px;
+      }
+
+      .evidence-row strong {
+        font-size: 15px;
+      }
+
+      .evidence-row span {
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .evidence-row a {
+        font-size: 14px;
+        color: var(--blue);
+        overflow-wrap: anywhere;
+      }
+
+      .offer {
+        background: var(--ink);
+        color: var(--white);
+        border-radius: 8px;
+        padding: clamp(22px, 4vw, 34px);
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(260px, 0.45fr);
+        gap: 22px;
+        align-items: center;
+      }
+
+      .offer p {
+        color: rgba(255, 255, 255, 0.78);
+      }
+
+      .button {
+        min-height: 46px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        padding: 0 18px;
+        text-decoration: none;
+        font-weight: 760;
+        background: var(--white);
+        color: var(--ink);
+        border: 1px solid var(--white);
+      }
+
+      .list {
+        margin: 0;
+        padding-left: 18px;
+        color: var(--muted);
+      }
+
+      .list li {
+        margin: 8px 0;
+      }
+
+      footer {
+        border-top: 1px solid var(--line);
+        padding: 24px clamp(20px, 5vw, 64px);
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      @media (max-width: 860px) {
+        .hero,
+        .offer {
+          grid-template-columns: 1fr;
+        }
+
+        .grid {
+          grid-template-columns: 1fr;
+        }
+
+        .evidence-row {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="brand">Bounty Signal Audit</div>
+      <nav>
+        <a href="#findings">Findings</a>
+        <a href="#sprint">Sprint</a>
+        <a href="./index.html">Proof Hub</a>
+      </nav>
+    </header>
+
+    <div class="hero">
+      <div>
+        <div class="eyebrow">48-hour triage for bounty platforms and maintainers</div>
+        <h1>AI bounty markets now need signal tooling.</h1>
+        <p class="lead">
+          In one Tuesday sprint, I tried to find a clean $1k open-source bounty and hit the same pattern repeatedly:
+          stale bounty pages, reserved work, unsafe AI-agent criteria, trust gates, and low-quality AI PR spam. This is
+          fixable with a small review layer before contributors waste time and maintainers drown.
+        </p>
+      </div>
+
+      <aside class="hero-panel" aria-label="audit summary">
+        <div class="metric">
+          <strong>6</strong>
+          <span>high-value routes inspected manually after automated discovery</span>
+        </div>
+        <div class="metric">
+          <strong>1</strong>
+          <span>real fix shipped, then blocked by trust scoring rather than code quality</span>
+        </div>
+        <div class="metric">
+          <strong>48h</strong>
+          <span>enough time to ship a working triage dashboard or CLI for one bounty program</span>
+        </div>
+      </aside>
+    </div>
+
+    <main>
+      <section id="findings">
+        <h2>What Broke The Search</h2>
+        <div class="grid">
+          <article class="card">
+            <span class="tag red">unsafe criteria</span>
+            <h3>Some bounty text asks agents to leak hidden context.</h3>
+            <p>
+              A high-dollar API bounty required contributors to paste private/system instructions and environment details
+              into a source header. That creates a compliance trap for serious contributors and attracts unserious ones.
+            </p>
+          </article>
+          <article class="card">
+            <span class="tag amber">reserved or stale</span>
+            <h3>Public boards do not clearly say what is actually takeable.</h3>
+            <p>
+              Several visible $1k+ bounties were closed, reserved for an existing contributor, blocked by third-party API
+              access, or stuck with old attempts while still appearing on bounty surfaces.
+            </p>
+          </article>
+          <article class="card">
+            <span class="tag blue">trust gate</span>
+            <h3>Good patches can be rejected before review.</h3>
+            <p>
+              A reduced database correctness bug was fixed with regression tests, but the PR was auto-closed by a trust
+              threshold. That gate may be useful, but contributors need a clearer preflight path.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <h2>Evidence Snapshot</h2>
+        <div class="evidence">
+          <div class="evidence-row">
+            <strong>Kyo gRPC bounty</strong>
+            <span>Maintainer closed the issue after too much low-quality AI PR noise and noted the bounty was effectively reserved.</span>
+            <a href="https://github.com/getkyo/kyo/issues/390">getkyo/kyo#390</a>
+          </div>
+          <div class="evidence-row">
+            <strong>OpenAgents audit log</strong>
+            <span>Acceptance criteria included a request to paste hidden context and environment details into modified source headers.</span>
+            <a href="https://github.com/ClankerNation/OpenAgents/issues/184">OpenAgents#184</a>
+          </div>
+          <div class="evidence-row">
+            <strong>Tenstorrent exp2</strong>
+            <span>Legitimate $3k bounty, but assigned, hardware-dependent, and already surrounded by low-quality generated comments.</span>
+            <a href="https://github.com/tenstorrent/tt-metal/issues/44507">tt-metal#44507</a>
+          </div>
+          <div class="evidence-row">
+            <strong>Turso correctness fix</strong>
+            <span>Issue and fix were reduced and validated locally; PR was auto-closed by Fossier trust score, so manual review was requested.</span>
+            <a href="https://github.com/tursodatabase/turso/issues/7148">Turso review request</a>
+          </div>
+        </div>
+      </section>
+
+      <section id="sprint">
+        <div class="offer">
+          <div>
+            <h2>What I Would Ship In 48 Hours</h2>
+            <p>
+              A small bounty-signal layer that classifies live issues before humans or agents start work: takeable vs.
+              stale, unsafe criteria, reserved signs, trust-gate risk, competition density, and required proof assets.
+            </p>
+            <ul class="list">
+              <li>GitHub issue scanner for bounty text, labels, comments, open PRs, and closure risk.</li>
+              <li>Unsafe instruction detector for requests that ask contributors to expose hidden/system context.</li>
+              <li>Maintainer dashboard with the top fixes: clarify scope, close stale bounties, reserve explicitly, or add proof requirements.</li>
+              <li>Contributor-facing feed that shows only likely-takeable work with expected proof and payout friction.</li>
+            </ul>
+          </div>
+          <div>
+            <p><strong>$1,000 fixed sprint.</strong> One bounty program, one working prototype, one decision report.</p>
+            <a class="button" href="mailto:sravan272001@gmail.com?subject=Bounty%20signal%20audit%20sprint">Reply to scope sprint</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      Built by Sravan Sridhar. Supporting proof: <a href="./database-compat-fuzzing-sprint.html">database fuzzing sprint</a>,
+      <a href="./agent-cost-leak-checker.html">agent context leak checker</a>, and <a href="./index.html">proof hub</a>.
+    </footer>
+  </body>
+</html>
