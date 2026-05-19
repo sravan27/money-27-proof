@@ -404,7 +404,7 @@
         <div class="panel" aria-label="Recent proof trace">
           <div class="panel-title">
             <strong>Recent 90-minute trace</strong>
-            <span class="status">2 PR submissions</span>
+            <span class="status">2 PRs + 1 open issue</span>
           </div>
           <div class="trace">
             <div class="event">
@@ -426,6 +426,11 @@
               <div class="dot"></div>
               <div><b>Upstream PR</b><span>Turso PR #7144 was submitted from a clean branch with the regression attached</span></div>
               <span class="tag">Ship</span>
+            </div>
+            <div class="event">
+              <div class="dot"></div>
+              <div><b>Invalid SQL mutation report</b><span>SQLite rejects an undefined CTE column while Turso accepts the UPDATE and mutates data</span></div>
+              <span class="tag">Report</span>
             </div>
           </div>
         </div>
@@ -473,6 +478,10 @@
           <p>These are real public artifacts, not screenshots of intent.</p>
         </div>
         <div class="proof-links">
+          <a class="proof-link" href="https://github.com/tursodatabase/turso/issues/7146">
+            <strong>Turso issue #7146</strong>
+            <span>Reduced invalid CTE UPDATE repro: SQLite errors and leaves data unchanged, while Turso accepts the statement and mutates a row.</span>
+          </a>
           <a class="proof-link" href="https://github.com/tursodatabase/turso/pull/7144">
             <strong>Turso PR #7144</strong>
             <span>Fixes ALTER TABLE RENAME COLUMN when a TEMP trigger targets a main table. Includes the regression and exact fuzzer seed validation.</span>
