@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Database Compatibility Fuzzing Sprint</title>
+    <meta name="description" content="A fixed-scope 48-hour compatibility fuzzing sprint for database, sync, query, and SDK teams.">
+    <style>
+      :root {
+        --ink: #151d1f;
+        --muted: #566368;
+        --paper: #fbfbf8;
+        --band: #edf4f1;
+        --line: #d8e0dd;
+        --green: #176b4d;
+        --teal: #0e6b75;
+        --amber: #b06b13;
+        --white: #ffffff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: var(--ink);
+        background: var(--paper);
+        line-height: 1.5;
+        overflow-x: hidden;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 18px clamp(20px, 5vw, 64px);
+        border-bottom: 1px solid var(--line);
+        background: rgba(251, 251, 248, 0.96);
+        position: sticky;
+        top: 0;
+        z-index: 10;
+      }
+
+      .brand {
+        font-weight: 780;
+        font-size: 15px;
+      }
+
+      nav {
+        display: flex;
+        gap: 18px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      nav a {
+        text-decoration: none;
+      }
+
+      .hero {
+        min-height: 76vh;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(320px, 0.9fr);
+        gap: clamp(28px, 5vw, 72px);
+        align-items: center;
+        padding: clamp(42px, 8vw, 92px) clamp(20px, 5vw, 64px) 38px;
+        background: var(--band);
+      }
+
+      .hero > * {
+        min-width: 0;
+      }
+
+      .eyebrow {
+        color: var(--green);
+        font-weight: 760;
+        font-size: 14px;
+        margin-bottom: 14px;
+      }
+
+      h1 {
+        font-size: clamp(40px, 7vw, 84px);
+        line-height: 0.96;
+        margin: 0;
+        letter-spacing: 0;
+        overflow-wrap: anywhere;
+      }
+
+      .hero p {
+        color: var(--muted);
+        max-width: 660px;
+        font-size: clamp(18px, 2.2vw, 23px);
+        margin: 24px 0 0;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 30px;
+      }
+
+      .button {
+        min-height: 46px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        max-width: 100%;
+        border-radius: 8px;
+        padding: 0 18px;
+        text-decoration: none;
+        font-weight: 740;
+        border: 1px solid var(--ink);
+        background: var(--white);
+        text-align: center;
+      }
+
+      .button.primary {
+        background: var(--ink);
+        color: var(--white);
+      }
+
+      .panel {
+        background: var(--white);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 22px;
+        box-shadow: 0 18px 38px rgba(21, 29, 31, 0.08);
+        min-width: 0;
+      }
+
+      .panel-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 14px;
+        margin-bottom: 16px;
+        min-width: 0;
+      }
+
+      .status {
+        color: var(--green);
+        font-size: 13px;
+        font-weight: 760;
+      }
+
+      .trace {
+        display: grid;
+        gap: 12px;
+      }
+
+      .event {
+        display: grid;
+        grid-template-columns: 12px minmax(0, 1fr) auto;
+        gap: 12px;
+        align-items: center;
+        min-height: 58px;
+        padding: 12px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+      }
+
+      .dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--teal);
+      }
+
+      .event:nth-child(2) .dot {
+        background: var(--amber);
+      }
+
+      .event:nth-child(3) .dot,
+      .event:nth-child(4) .dot {
+        background: var(--green);
+      }
+
+      .event b,
+      .proof-link strong {
+        display: block;
+      }
+
+      .event span {
+        display: block;
+        color: var(--muted);
+        font-size: 13px;
+        overflow-wrap: anywhere;
+      }
+
+      .tag {
+        color: var(--muted);
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 4px 8px;
+        font-size: 12px;
+      }
+
+      section {
+        padding: clamp(42px, 6vw, 76px) clamp(20px, 5vw, 64px);
+      }
+
+      .section-head {
+        max-width: 760px;
+        margin-bottom: 28px;
+      }
+
+      h2 {
+        font-size: clamp(28px, 4vw, 44px);
+        line-height: 1.05;
+        margin: 0;
+        letter-spacing: 0;
+      }
+
+      .section-head p {
+        color: var(--muted);
+        margin: 14px 0 0;
+        font-size: 17px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .card,
+      .proof-link {
+        background: var(--white);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 20px;
+      }
+
+      .card h3 {
+        margin: 0 0 10px;
+        font-size: 20px;
+      }
+
+      .price {
+        font-size: 34px;
+        font-weight: 800;
+        margin-bottom: 14px;
+      }
+
+      .card ul {
+        margin: 0;
+        padding-left: 18px;
+        color: var(--muted);
+      }
+
+      .card li {
+        margin: 8px 0;
+      }
+
+      .proof-links {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .proof-link {
+        min-height: 130px;
+        text-decoration: none;
+      }
+
+      .proof-link span {
+        display: block;
+        color: var(--muted);
+        font-size: 14px;
+        margin-top: 8px;
+      }
+
+      .cta {
+        background: var(--ink);
+        color: var(--white);
+      }
+
+      .cta p {
+        color: #dfe7e4;
+      }
+
+      .cta .button {
+        border-color: var(--white);
+      }
+
+      footer {
+        padding: 24px clamp(20px, 5vw, 64px);
+        color: var(--muted);
+        border-top: 1px solid var(--line);
+        font-size: 14px;
+      }
+
+      @media (max-width: 860px) {
+        header {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        nav {
+          flex-wrap: wrap;
+        }
+
+        .hero,
+        .grid,
+        .proof-links {
+          grid-template-columns: 1fr;
+        }
+
+        .hero {
+          min-height: auto;
+        }
+      }
+
+      @media (max-width: 520px) {
+        header,
+        section,
+        footer {
+          padding-left: 24px;
+          padding-right: 24px;
+        }
+
+        h1 {
+          font-size: 38px;
+          line-height: 1.02;
+          max-width: 11ch;
+        }
+
+        .eyebrow,
+        .hero p,
+        .panel,
+        .button,
+        .card,
+        .proof-link {
+          width: min(342px, calc(100dvw - 48px));
+          max-width: 100%;
+        }
+
+        .hero p {
+          font-size: 18px;
+        }
+
+        .actions {
+          align-items: stretch;
+          flex-direction: column;
+        }
+
+        .button {
+          width: 100%;
+        }
+
+        .panel {
+          padding: 18px;
+        }
+
+        .panel-title {
+          align-items: flex-start;
+          flex-direction: column;
+          gap: 6px;
+        }
+
+        .event {
+          grid-template-columns: 12px minmax(0, 1fr);
+        }
+
+        .tag {
+          grid-column: 2;
+          justify-self: start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="brand">Database Compatibility Fuzzing Sprint</div>
+      <nav aria-label="Primary">
+        <a href="#scope">Scope</a>
+        <a href="#proof">Proof</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div>
+          <div class="eyebrow">48-hour compatibility pass for database, sync, and query teams</div>
+          <h1>Find one real engine or SDK bug before your users do.</h1>
+          <p>I run a focused fuzzing and differential-testing sprint against one narrow surface: SQL compatibility, query planning, schema rewrites, sync edge cases, SDK adapters, or import/export paths. The deliverable is a reduced repro, a fix PR when feasible, and a maintainer-grade writeup.</p>
+          <div class="actions">
+            <a class="button primary" href="mailto:sravan272001@gmail.com?subject=Database%20Compatibility%20Fuzzing%20Sprint">Request a scope check</a>
+            <a class="button" href="#proof">See shipped proof</a>
+          </div>
+        </div>
+
+        <div class="panel" aria-label="Recent proof trace">
+          <div class="panel-title">
+            <strong>Recent 90-minute trace</strong>
+            <span class="status">2 upstream PRs</span>
+          </div>
+          <div class="trace">
+            <div class="event">
+              <div class="dot"></div>
+              <div><b>Differential fuzzer signal</b><span>SQLite succeeded while Turso rejected a temp-trigger schema rewrite</span></div>
+              <span class="tag">Find</span>
+            </div>
+            <div class="event">
+              <div class="dot"></div>
+              <div><b>Three-statement repro</b><span>Reduced to CREATE TABLE, CREATE TEMP TRIGGER, ALTER TABLE RENAME COLUMN</span></div>
+              <span class="tag">Reduce</span>
+            </div>
+            <div class="event">
+              <div class="dot"></div>
+              <div><b>Patch and tests</b><span>Normal and MVCC regression, CLI repro, exact fuzzer seed all pass</span></div>
+              <span class="tag">Fix</span>
+            </div>
+            <div class="event">
+              <div class="dot"></div>
+              <div><b>Upstream PR</b><span>Turso PR #7144 is live from a clean branch</span></div>
+              <span class="tag">Ship</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scope">
+        <div class="section-head">
+          <h2>Fixed-scope sprint</h2>
+          <p>Best fit when you have a risky compatibility surface but not enough time for broad QA.</p>
+        </div>
+        <div class="grid">
+          <article class="card">
+            <h3>Diagnostic</h3>
+            <div class="price">$500</div>
+            <ul>
+              <li>One target surface reviewed.</li>
+              <li>One reduced repro or risk report when a bug is found.</li>
+              <li>Short mitigation plan if no clean fix is feasible.</li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3>48-hour sprint</h3>
+            <div class="price">$1,000</div>
+            <ul>
+              <li>Focused fuzzing or differential test harness pass.</li>
+              <li>Reduced repro and failing test.</li>
+              <li>Patch PR when the fix is inside a small, safe scope.</li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3>Handoff plus</h3>
+            <div class="price">$1,500</div>
+            <ul>
+              <li>Everything in the sprint.</li>
+              <li>Repro suite and maintainer notes.</li>
+              <li>Follow-up hardening checklist for your team.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section id="proof">
+        <div class="section-head">
+          <h2>Shipped proof</h2>
+          <p>These are real public artifacts, not screenshots of intent.</p>
+        </div>
+        <div class="proof-links">
+          <a class="proof-link" href="https://github.com/tursodatabase/turso/pull/7144">
+            <strong>Turso PR #7144</strong>
+            <span>Fixes ALTER TABLE RENAME COLUMN when a TEMP trigger targets a main table. Includes the regression and exact fuzzer seed validation.</span>
+          </a>
+          <a class="proof-link" href="https://github.com/tursodatabase/turso/pull/7143">
+            <strong>Turso PR #7143</strong>
+            <span>Fixes a subquery scheduling panic around aggregate arguments and FILTER predicates.</span>
+          </a>
+          <a class="proof-link" href="https://github.com/sravan27/context-os">
+            <strong>Context OS</strong>
+            <span>Installable GitHub Action for agent-context cost and failure-surface checks.</span>
+          </a>
+          <a class="proof-link" href="agent-cost-leak-checker.html">
+            <strong>Agent cost leak checker</strong>
+            <span>Public repo scanner showing how I package technical findings into operator-readable outputs.</span>
+          </a>
+        </div>
+      </section>
+
+      <section id="contact" class="cta">
+        <div class="section-head">
+          <h2>Send one risky surface.</h2>
+          <p>Good inputs: a repo link, a failing compatibility area, a query feature, an SDK adapter, or one engine behavior you do not fully trust.</p>
+        </div>
+        <div class="actions">
+          <a class="button primary" href="mailto:sravan272001@gmail.com?subject=Database%20Compatibility%20Fuzzing%20Sprint">Start by email</a>
+          <a class="button" href="https://github.com/sravan27">View GitHub profile</a>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      Fixed-scope engineering sprint by Sravan Sridhar. Payment link or funded milestone is sent after scope confirmation.
+    </footer>
+  </body>
+</html>
