@@ -1,0 +1,72 @@
+name: Free agent cost-leak scan
+description: Submit a repo for a free agent cost/context-leak scan. Public repos scanned free; private repos are a paid audit.
+title: "[Free scan] "
+labels: ["free-scan"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Submit a repo and I'll run a free agent cost/context-leak scan and reply with the top findings.
+        Public repo → free scan in the reply. Private repo → I'll quote the [48-hour audit](https://buy.polar.sh/polar_cl_z0eLsPUJeMwrcNs4MQPAQbKIM3Rbdb8fLDgVj2RZcmr).
+        Independent service — not affiliated with Anthropic, Cursor, or OpenAI.
+  - type: input
+    id: repo
+    attributes:
+      label: Repository URL (or describe the stack if private)
+      placeholder: https://github.com/org/repo
+    validations:
+      required: true
+  - type: dropdown
+    id: agents
+    attributes:
+      label: Which coding agent(s) does your team use?
+      multiple: true
+      options:
+        - Claude Code
+        - Cursor
+        - Codex / OpenAI
+        - GitHub Copilot
+        - Other / mixed
+    validations:
+      required: true
+  - type: textarea
+    id: pain
+    attributes:
+      label: What's the pain?
+      description: Token burn, agent drift, bloated diffs, long sessions failing, slow onboarding, rate limits — whatever hurts.
+    validations:
+      required: true
+  - type: dropdown
+    id: urgency
+    attributes:
+      label: How urgent is this?
+      options:
+        - This week
+        - This month
+        - Just exploring
+    validations:
+      required: true
+  - type: dropdown
+    id: tier
+    attributes:
+      label: Which tier are you considering?
+      options:
+        - "Free scan only for now"
+        - "$500 Diagnostic Fix"
+        - "$1,000 48-Hour Audit (most chosen)"
+        - "$1,500 Audit + Handoff"
+        - "Not sure yet"
+    validations:
+      required: true
+  - type: input
+    id: contact
+    attributes:
+      label: Best contact (email or handle)
+      description: Optional — I can also just reply on this issue.
+  - type: checkboxes
+    id: consent
+    attributes:
+      label: Consent
+      options:
+        - label: I'm authorized to share this repo / request a review of it.
+          required: true

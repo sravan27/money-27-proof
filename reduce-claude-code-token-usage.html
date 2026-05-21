@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to reduce Claude Code token usage (6 measured techniques)</title>
+<meta name="description" content="Six practical, measured ways to cut Claude Code token usage — CLAUDE.md response shaping, .claudeignore, repo maps, thinking caps, Haiku subagents, early compaction. Plus a free repo scan and a done-for-you audit.">
+<link rel="canonical" href="https://sravan27.github.io/money-27-proof/reduce-claude-code-token-usage.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How to reduce Claude Code token usage (6 measured techniques)">
+<meta property="og:description" content="Six practical, measured ways to cut Claude Code token usage, plus a free repo cost-leak scan.">
+<meta property="og:url" content="https://sravan27.github.io/money-27-proof/reduce-claude-code-token-usage.html">
+<meta property="og:image" content="https://sravan27.github.io/money-27-proof/og-cost-leak.svg">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"How to reduce Claude Code token usage","author":{"@type":"Person","name":"Sravan Sridhar","url":"https://github.com/sravan27"},"datePublished":"2026-05-21","about":"Reducing token usage in AI coding agents"}
+</script>
+<style>
+:root{--ink:#161b22;--muted:#59646d;--paper:#fbfbf8;--line:#d8e0dc;--green:#176b4d}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:var(--paper);line-height:1.6}
+main{max-width:760px;margin:0 auto;padding:clamp(28px,5vw,64px) clamp(20px,5vw,28px)}
+h1{font-size:clamp(30px,5vw,44px);line-height:1.08;margin:0 0 10px}
+h2{font-size:clamp(22px,3vw,28px);margin:34px 0 8px}
+h3{margin:22px 0 4px}p,li{color:var(--muted);font-size:17px}a{color:var(--green)}
+.lede{font-size:20px;color:var(--ink)}
+.cta{margin:30px 0;padding:24px;border-radius:10px;background:var(--ink);color:#fff}
+.cta p{color:#dce5e2}
+.btn{display:inline-flex;min-height:46px;align-items:center;padding:0 18px;border-radius:8px;border:1px solid #fff;color:#fff;text-decoration:none;font-weight:740;margin:6px 8px 0 0}
+.btn.primary{background:#fff;color:var(--ink)}
+.note{font-size:13px;color:var(--muted);border-top:1px solid var(--line);margin-top:40px;padding-top:16px}
+code{background:#eef4f2;padding:1px 6px;border-radius:5px;font-size:15px}
+</style>
+</head>
+<body>
+<main>
+<h1>How to reduce Claude Code token usage</h1>
+<p class="lede">If you're hitting the 5-hour window or watching your agent spend climb, most of the waste comes from three places: bloated context, repeated file discovery, and verbose output. Here are six techniques that measurably help — and how to find which ones your repo needs.</p>
+
+<h2>1. Add a CLAUDE.md that shapes responses</h2>
+<p>A short repo guide (architecture, commands, conventions, "be terse") is the single biggest lever on <em>output</em> tokens. The agent stops re-deriving context and stops over-explaining. Keep it tight — a bloated CLAUDE.md is its own leak.</p>
+
+<h2>2. Add a <code>.claudeignore</code> for generated noise</h2>
+<p>Exclude <code>node_modules</code>, <code>dist</code>, <code>build</code>, <code>coverage</code>, lockfiles, snapshots, and large fixtures. These pull the agent into low-signal reads and inflate every turn's context.</p>
+
+<h2>3. Give the agent a repo map / file:line hints</h2>
+<p>Static symbol + import hints let the first turn open the right file instead of running Glob → Grep → Read → Read. On large repos this removes several exploration calls per task.</p>
+
+<h2>4. Cap the thinking budget on simple tasks</h2>
+<p>For routine edits, a high thinking budget is pure spend. Lowering <code>MAX_THINKING_TOKENS</code> for simple work keeps reasoning where it pays off.</p>
+
+<h2>5. Run exploration on a cheaper model</h2>
+<p>Use a Haiku subagent for "where is X / how does Y work" exploration in an isolated context, so your main session doesn't pay Opus/Sonnet rates to read files.</p>
+
+<h2>6. Compact earlier</h2>
+<p>Triggering compaction before the context window is jammed keeps each turn smaller and preserves the decisions that matter.</p>
+
+<h2>How much does this actually save?</h2>
+<p>Bundled together, these techniques ship as the open-source <a href="https://github.com/sravan27/context-os">context-os</a> (MIT). On a 36-call A/B against identical fixtures, it measured <strong>&minus;40.9% total tokens</strong> and <strong>&minus;35.3% wall-clock</strong> (Sonnet; 6/6 prompt-level wins; paired t-test p=5.1e-7). <a href="https://github.com/sravan27/context-os/blob/main/python/evals/reports/live-session-bench-raw.json">Raw data</a>. Your repo will differ — the only way to know your number is to measure your repo.</p>
+
+<div class="cta">
+<h2 style="margin-top:0;color:#fff">Find your repo's leaks in 8 seconds</h2>
+<p>Paste a public repo into the free scanner and get a leak score + the specific findings above, ranked. If you want it fixed for you, the 48-hour private audit ships a report, a tuned CI gate, and a concrete fix plan.</p>
+<a class="btn primary" href="agent-cost-leak-checker.html">Run the free scan</a>
+<a class="btn" href="https://buy.polar.sh/polar_cl_z0eLsPUJeMwrcNs4MQPAQbKIM3Rbdb8fLDgVj2RZcmr">Book the $1,000 audit</a>
+</div>
+
+<p>Limits: these reduce waste; they don't raise provider rate limits or guarantee a specific dollar saving for your repo. Savings depend on repo size, language, and how you currently work.</p>
+<p class="note">Independent service. Not affiliated with, endorsed by, or sponsored by Anthropic. "Claude" is a trademark of Anthropic. &middot; <a href="agent-cost-leak-checker.html">Agent Cost Leak Checker</a></p>
+</main>
+</body>
+</html>

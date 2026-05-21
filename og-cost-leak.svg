@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" font-family="Inter, system-ui, -apple-system, Segoe UI, sans-serif">
+  <rect width="1200" height="630" fill="#0d1117"/>
+  <rect x="0" y="0" width="1200" height="10" fill="#176b4d"/>
+  <text x="80" y="150" fill="#176b4d" font-size="26" font-weight="700" letter-spacing="2">AGENT COST LEAK AUDIT</text>
+  <text x="80" y="250" fill="#ffffff" font-size="62" font-weight="800">Your coding agent may be</text>
+  <text x="80" y="325" fill="#ffffff" font-size="62" font-weight="800">burning a third of its</text>
+  <text x="80" y="400" fill="#ffffff" font-size="62" font-weight="800">context budget on noise.</text>
+  <text x="80" y="490" fill="#9fb0bd" font-size="30">Free public-repo scan · 48-hour private audit · concrete fix plan</text>
+  <text x="80" y="560" fill="#5bbb8a" font-size="26" font-weight="700">Claude Code · Cursor · Codex</text>
+  <text x="1120" y="560" fill="#59646d" font-size="22" text-anchor="end">sravan27.github.io</text>
+</svg>

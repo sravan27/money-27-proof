@@ -3,9 +3,39 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>AI Agent Cost Leak Checker</title>
-    <meta name="description" content="Instant public-repo scanner for Claude Code, Codex, Cursor, and agentic coding cost-leak signals.">
-    <link rel="canonical" href="./agent-cost-leak-checker.html">
+    <title>AI Agent Cost Leak Checker — free repo scan + 48-hour private audit</title>
+    <meta name="description" content="Free public-repo scanner for Claude Code, Cursor, and Codex cost-leak signals — plus a 48-hour private-repo audit that ships a report, a CI threshold gate, and a concrete fix plan. Independent service, not affiliated with Anthropic.">
+    <meta name="keywords" content="Claude Code token usage, AI coding agent cost, CLAUDE.md audit, agent context optimization, Cursor cost, Codex cost, reduce Claude Code tokens">
+    <link rel="canonical" href="https://sravan27.github.io/money-27-proof/agent-cost-leak-checker.html">
+
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Agent Cost Leak Audit">
+    <meta property="og:url" content="https://sravan27.github.io/money-27-proof/agent-cost-leak-checker.html">
+    <meta property="og:title" content="Your coding agent may be burning a third of its context budget on noise.">
+    <meta property="og:description" content="Free public-repo cost-leak scan + a 48-hour private-repo audit. Report, CI threshold gate, concrete fix plan. For teams using Claude Code, Cursor, or Codex.">
+    <meta property="og:image" content="https://sravan27.github.io/money-27-proof/og-cost-leak.svg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Your coding agent may be burning a third of its context budget on noise.">
+    <meta name="twitter:description" content="Free public-repo cost-leak scan + a 48-hour private-repo audit for Claude Code / Cursor / Codex teams.">
+    <meta name="twitter:image" content="https://sravan27.github.io/money-27-proof/og-cost-leak.svg">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Service",
+      "name": "AI Agent Cost Leak Audit",
+      "serviceType": "AI coding-agent repository audit",
+      "description": "A 48-hour private-repo audit for teams using AI coding agents (Claude Code, Cursor, Codex). Reviews repo structure, agent instructions, and workflow habits, then ships a report, a CI threshold gate, and a concrete fix plan.",
+      "provider": { "@type": "Person", "name": "Sravan Sridhar", "url": "https://github.com/sravan27" },
+      "areaServed": "Worldwide",
+      "url": "https://sravan27.github.io/money-27-proof/agent-cost-leak-checker.html",
+      "offers": [
+        { "@type": "Offer", "name": "Diagnostic Fix", "price": "500", "priceCurrency": "USD", "url": "https://buy.polar.sh/polar_cl_G0fuUHHZ1tg9E0oe7gluje9gs44l8FAqVnfwS2AJkbw" },
+        { "@type": "Offer", "name": "48-Hour Audit + Fix Plan", "price": "1000", "priceCurrency": "USD", "url": "https://buy.polar.sh/polar_cl_z0eLsPUJeMwrcNs4MQPAQbKIM3Rbdb8fLDgVj2RZcmr" },
+        { "@type": "Offer", "name": "Audit + Handoff", "price": "1500", "priceCurrency": "USD", "url": "https://buy.polar.sh/polar_cl_B12Farw9U5lr1SvYHDzmLAL4fo8bSt1ZNTMcD0wVcmo" }
+      ]
+    }
+    </script>
     <style>
       :root {
         --ink: #161b22;
@@ -299,6 +329,67 @@
         align-items: start;
       }
 
+      main section { margin-bottom: clamp(30px, 5vw, 56px); }
+
+      .pricing {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+        margin-top: 20px;
+      }
+
+      .tier {
+        position: relative;
+        background: var(--white);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 22px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .tier.featured {
+        border: 2px solid var(--green);
+        box-shadow: 0 18px 38px rgba(23, 107, 77, 0.12);
+      }
+
+      .badge {
+        position: absolute;
+        top: -12px;
+        left: 22px;
+        background: var(--green);
+        color: var(--white);
+        font-size: 12px;
+        font-weight: 780;
+        padding: 4px 10px;
+        border-radius: 999px;
+      }
+
+      .price { font-size: 38px; font-weight: 800; margin: 6px 0 12px; }
+
+      .tier ul {
+        margin: 0 0 18px;
+        padding-left: 18px;
+        color: var(--muted);
+        font-size: 15px;
+        display: grid;
+        gap: 7px;
+        flex: 1;
+      }
+
+      .tier .button { width: 100%; }
+
+      .fineprint, .disclaimer { font-size: 13px; color: var(--muted); margin-top: 14px; }
+      .disclaimer { margin-top: 26px; }
+
+      .steps {
+        color: var(--muted);
+        font-size: 16px;
+        padding-left: 20px;
+        display: grid;
+        gap: 8px;
+      }
+
       footer {
         padding-block: 28px;
         color: var(--muted);
@@ -306,7 +397,7 @@
       }
 
       @media (max-width: 900px) {
-        header, .result-band, .grid, .install {
+        header, .result-band, .grid, .install, .pricing {
           grid-template-columns: 1fr;
         }
 
@@ -327,8 +418,8 @@
         <h1>Scan a repo for AI agent cost leaks.</h1>
         <p>Paste a public GitHub repo and get a fast risk preview for Claude Code, Codex, Cursor, and other coding agents. No login, no upload, no private code. The local version can also fail CI when risk rises above your threshold.</p>
         <div class="actions">
-          <a class="button primary" href="agent-cost-leak-audit.html">Buy the 48-hour audit</a>
-          <a class="button" href="https://github.com/sravan27/context-os">View context-os proof</a>
+          <a class="button primary" href="#pricing">See audit pricing</a>
+          <a class="button" href="#proof">View the proof</a>
         </div>
       </div>
 
@@ -414,14 +505,86 @@ jobs:
           max-score: "40"</code></pre>
       </section>
 
-      <section class="cta">
-        <h2>Need the private version?</h2>
-        <p>The paid audit reviews private repo structure, prompts, agent transcripts, and workflow habits, then ships a report, GitHub Action threshold gate, and one concrete fix path.</p>
-        <div class="actions">
-          <a class="button primary" href="https://buy.polar.sh/polar_cl_z0eLsPUJeMwrcNs4MQPAQbKIM3Rbdb8fLDgVj2RZcmr">Fund $1,000 sprint</a>
-          <a class="button" href="proof/agent_cost_leak_sample_report.html">View sample report</a>
+      <section id="pricing">
+        <h2>Private repo audit — pick a tier</h2>
+        <p>The free scan above reads only your public file tree. The paid audit looks at what actually drives agent waste: real repo structure, your <code>CLAUDE.md</code>/agent instructions, ignore rules, and workflow habits — then ships something you can act on. Manual work, one repo at a time.</p>
+        <div class="pricing">
+          <article class="tier">
+            <h3>Diagnostic Fix</h3>
+            <div class="price">$500</div>
+            <ul>
+              <li>Async repo + workflow review</li>
+              <li>Root-cause diagnosis of the biggest cost/context leak</li>
+              <li>One focused fix or implementation recommendation</li>
+              <li>Short handoff note with next steps</li>
+            </ul>
+            <a class="button" href="https://buy.polar.sh/polar_cl_G0fuUHHZ1tg9E0oe7gluje9gs44l8FAqVnfwS2AJkbw">Fund $500 diagnostic</a>
+          </article>
+          <article class="tier featured">
+            <div class="badge">Most chosen</div>
+            <h3>48-Hour Audit + Fix Plan</h3>
+            <div class="price">$1,000</div>
+            <ul>
+              <li>Everything in Diagnostic, plus:</li>
+              <li>Full audit: structure, CLAUDE.md/agent docs, ignore rules, discovery churn</li>
+              <li>Written report with prioritized findings</li>
+              <li>A pinned GitHub Action cost-leak gate, tuned to your threshold</li>
+              <li>One concrete fix path implemented or specified</li>
+              <li>One revision pass inside the original scope</li>
+            </ul>
+            <a class="button primary" href="https://buy.polar.sh/polar_cl_z0eLsPUJeMwrcNs4MQPAQbKIM3Rbdb8fLDgVj2RZcmr">Fund $1,000 audit</a>
+          </article>
+          <article class="tier">
+            <h3>Audit + Handoff</h3>
+            <div class="price">$1,500</div>
+            <ul>
+              <li>Everything in the 48-Hour Audit, plus:</li>
+              <li>Architecture / context map for your repo</li>
+              <li>Operator runbook your team can reuse</li>
+              <li>Two revision passes inside scope</li>
+              <li>Optional white-label delivery for agencies</li>
+            </ul>
+            <a class="button" href="https://buy.polar.sh/polar_cl_B12Farw9U5lr1SvYHDzmLAL4fo8bSt1ZNTMcD0wVcmo">Fund $1,500 handoff</a>
+          </article>
+        </div>
+        <p class="fineprint">Checkout is handled by Polar (merchant of record). The $1,000 tier is the right default for most teams.</p>
+      </section>
+
+      <section id="proof">
+        <h2>Why trust this</h2>
+        <div class="grid">
+          <article class="card">
+            <h3>A public, reproducible benchmark</h3>
+            <p>The method behind this audit ships as <a href="https://github.com/sravan27/context-os">context-os</a> (MIT). On a 36-call A/B against identical fixtures it measured <strong>&minus;40.9% total tokens</strong> and <strong>&minus;35.3% wall-clock</strong> (Sonnet, 6/6 prompt-level wins, paired t-test p=5.1e-7). <a href="https://github.com/sravan27/context-os/blob/main/python/evals/reports/live-session-bench-raw.json">Raw data</a> &middot; <a href="https://github.com/sravan27/context-os/blob/main/docs/METHODOLOGY.md">methodology</a>. Your repo will differ — the audit measures yours specifically.</p>
+          </article>
+          <article class="card">
+            <h3>See the deliverable first</h3>
+            <p>A clearly-labeled <a href="proof/agent_cost_leak_sample_report.html">sample audit report</a> shows exactly what you get. No mystery, no fake testimonials.</p>
+          </article>
+          <article class="card">
+            <h3>The same gate runs in CI</h3>
+            <p>The cost-leak check is a pinned GitHub Action with a green smoke test in context-os CI. The audit tunes it to your repo so regressions get caught on every PR.</p>
+          </article>
         </div>
       </section>
+
+      <section>
+        <h2>What happens after you pay</h2>
+        <ol class="steps">
+          <li>You get a kickoff email asking for repo access (or a clone), one sample task/transcript, and your goal.</li>
+          <li>The 48-hour delivery window starts once access and context arrive — not at the moment of payment.</li>
+          <li>You receive the report, the tuned CI gate, and the fix path, plus one revision inside scope.</li>
+        </ol>
+        <h3>Limits &amp; refund</h3>
+        <p>One repo, one primary workflow per audit. This reduces and catches agent cost/context waste; it does not raise provider rate limits or guarantee a specific dollar saving for your repo. If, after intake, I don't believe I can deliver useful findings for your codebase, I'll say so and refund in full before any work starts.</p>
+        <div class="actions">
+          <a class="button primary" href="https://buy.polar.sh/polar_cl_z0eLsPUJeMwrcNs4MQPAQbKIM3Rbdb8fLDgVj2RZcmr">Fund $1,000 audit</a>
+          <a class="button" href="https://github.com/sravan27/money-27-proof/issues/new?template=free-scan.yml">Submit your repo for a free scan</a>
+          <a class="button" href="mailto:sravan272001@gmail.com?subject=AI%20Agent%20Cost%20Leak%20Audit%20-%20scope%20question">Ask a scope question</a>
+        </div>
+      </section>
+
+      <p class="disclaimer">Independent service. Not affiliated with, endorsed by, or sponsored by Anthropic, Cursor, or OpenAI. &ldquo;Claude&rdquo;, &ldquo;Cursor&rdquo;, and &ldquo;Codex&rdquo; are trademarks of their respective owners.</p>
     </main>
 
     <footer>

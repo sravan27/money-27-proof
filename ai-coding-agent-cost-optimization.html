@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI coding agent cost optimization: where the spend goes and how to cut it</title>
+<meta name="description" content="Why AI coding agents (Claude Code, Cursor, Codex) cost more than they should, the repo-level and team-level levers that cut it, and a CI gate that stops regressions. Free scan + 48-hour audit.">
+<link rel="canonical" href="https://sravan27.github.io/money-27-proof/ai-coding-agent-cost-optimization.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AI coding agent cost optimization: where the spend goes and how to cut it">
+<meta property="og:description" content="Repo-level and team-level levers that cut AI coding agent cost, plus a CI gate that stops regressions.">
+<meta property="og:url" content="https://sravan27.github.io/money-27-proof/ai-coding-agent-cost-optimization.html">
+<meta property="og:image" content="https://sravan27.github.io/money-27-proof/og-cost-leak.svg">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"AI coding agent cost optimization","author":{"@type":"Person","name":"Sravan Sridhar","url":"https://github.com/sravan27"},"datePublished":"2026-05-21"}
+</script>
+<style>
+:root{--ink:#161b22;--muted:#59646d;--paper:#fbfbf8;--line:#d8e0dc;--green:#176b4d}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:var(--paper);line-height:1.6}
+main{max-width:760px;margin:0 auto;padding:clamp(28px,5vw,64px) clamp(20px,5vw,28px)}
+h1{font-size:clamp(30px,5vw,44px);line-height:1.08;margin:0 0 10px}
+h2{font-size:clamp(22px,3vw,28px);margin:34px 0 8px}p,li{color:var(--muted);font-size:17px}a{color:var(--green)}
+.lede{font-size:20px;color:var(--ink)}
+.cta{margin:30px 0;padding:24px;border-radius:10px;background:var(--ink);color:#fff}.cta p{color:#dce5e2}
+.btn{display:inline-flex;min-height:46px;align-items:center;padding:0 18px;border-radius:8px;border:1px solid #fff;color:#fff;text-decoration:none;font-weight:740;margin:6px 8px 0 0}.btn.primary{background:#fff;color:var(--ink)}
+.note{font-size:13px;color:var(--muted);border-top:1px solid var(--line);margin-top:40px;padding-top:16px}
+code{background:#eef4f2;padding:1px 6px;border-radius:5px;font-size:15px}
+pre{background:var(--ink);color:#fff;padding:16px;border-radius:8px;overflow-x:auto;font-size:14px}
+</style>
+</head>
+<body>
+<main>
+<h1>AI coding agent cost optimization</h1>
+<p class="lede">Whether your team runs Claude Code, Cursor, or Codex, the bill grows for the same reasons: agents read too much, rediscover the same files, and produce verbose output. The fixes are mostly repo-level, and they can be enforced in CI so they don't regress.</p>
+
+<h2>Where the spend actually goes</h2>
+<p>Three buckets dominate: <strong>context bloat</strong> (the agent ingests generated folders, lockfiles, and large blobs), <strong>discovery churn</strong> (repeated grep → read loops because nothing tells the agent where things are), and <strong>output verbosity</strong> (no response shaping, so every answer is an essay). None of these need a model change to fix.</p>
+
+<h2>Repo-level levers</h2>
+<ul>
+<li>An agent instruction file (<code>CLAUDE.md</code>, <code>AGENTS.md</code>) that front-loads structure, commands, and conventions.</li>
+<li>Ignore rules (<code>.claudeignore</code>, <code>.cursorignore</code>) for generated and vendored files.</li>
+<li>A static repo map so the first turn opens the right file.</li>
+<li>A clear test/verification path so the agent stops looping on uncertain changes.</li>
+</ul>
+
+<h2>Team-level levers</h2>
+<ul>
+<li>Standardize the above across repos instead of leaving each dev to wing it.</li>
+<li>Route exploration to a cheaper model so the expensive model only does the work that needs it.</li>
+<li>Put a cost-leak threshold in CI so a noisy new directory or a deleted CLAUDE.md gets caught on the PR, not on the invoice.</li>
+</ul>
+
+<h2>The CI gate</h2>
+<p>A pinned GitHub Action can fail the build when a repo's agent-cost-leak score rises above your threshold:</p>
+<pre><code>name: Agent cost leak check
+on: [pull_request]
+jobs:
+  agent-cost-leak:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: sravan27/context-os@v2.9.0
+        with:
+          max-score: "40"</code></pre>
+<p>The method is open source and benchmarked: <a href="https://github.com/sravan27/context-os">context-os</a> measured <strong>&minus;40.9% total tokens</strong> and <strong>&minus;35.3% wall-clock</strong> on a 36-call A/B (Sonnet; p=5.1e-7). Your repo will differ.</p>
+
+<div class="cta">
+<h2 style="margin-top:0;color:#fff">Get a number for your repo</h2>
+<p>Run the free public-repo scan to see your leak score and findings. For private repos and team rollouts, the 48-hour audit ships a report, a tuned CI gate, and a concrete fix path; the handoff tier adds an architecture map and operator runbook.</p>
+<a class="btn primary" href="agent-cost-leak-checker.html">Run the free scan</a>
+<a class="btn" href="https://buy.polar.sh/polar_cl_z0eLsPUJeMwrcNs4MQPAQbKIM3Rbdb8fLDgVj2RZcmr">Book the $1,000 audit</a>
+</div>
+
+<p>Limits: this reduces and catches waste; it does not raise provider rate limits or guarantee a specific dollar saving. Results depend on repo size, language, and current workflow.</p>
+<p class="note">Independent service. Not affiliated with, endorsed by, or sponsored by Anthropic, Cursor, or OpenAI. Trademarks belong to their respective owners. &middot; <a href="claude-md-audit.html">CLAUDE.md audit</a> &middot; <a href="reduce-claude-code-token-usage.html">Reduce token usage</a></p>
+</main>
+</body>
+</html>

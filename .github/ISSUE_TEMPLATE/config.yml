@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Book the $1,000 48-hour audit now
+    url: https://buy.polar.sh/polar_cl_z0eLsPUJeMwrcNs4MQPAQbKIM3Rbdb8fLDgVj2RZcmr
+    about: Skip the queue — fund the private repo audit directly via Polar.
+  - name: Run the free public-repo scanner
+    url: https://sravan27.github.io/money-27-proof/agent-cost-leak-checker.html
+    about: No login — paste a public repo and get an instant leak preview.
+  - name: Ask a scope question by email
+    url: mailto:sravan272001@gmail.com
+    about: Not sure if it's a fit? Ask before you pay.

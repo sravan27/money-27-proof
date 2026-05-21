@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://sravan27.github.io/money-27-proof/sitemap.xml

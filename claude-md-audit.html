@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CLAUDE.md audit: a checklist for a context file that saves tokens</title>
+<meta name="description" content="What a good CLAUDE.md contains, the common mistakes that waste tokens, and a 9-point audit checklist. Plus a free repo scan and a done-for-you audit for Claude Code teams.">
+<link rel="canonical" href="https://sravan27.github.io/money-27-proof/claude-md-audit.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CLAUDE.md audit: a checklist for a context file that saves tokens">
+<meta property="og:description" content="What a good CLAUDE.md contains and a 9-point audit checklist for Claude Code teams.">
+<meta property="og:url" content="https://sravan27.github.io/money-27-proof/claude-md-audit.html">
+<meta property="og:image" content="https://sravan27.github.io/money-27-proof/og-cost-leak.svg">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Article","headline":"CLAUDE.md audit checklist","author":{"@type":"Person","name":"Sravan Sridhar","url":"https://github.com/sravan27"},"datePublished":"2026-05-21"}
+</script>
+<style>
+:root{--ink:#161b22;--muted:#59646d;--paper:#fbfbf8;--line:#d8e0dc;--green:#176b4d}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);background:var(--paper);line-height:1.6}
+main{max-width:760px;margin:0 auto;padding:clamp(28px,5vw,64px) clamp(20px,5vw,28px)}
+h1{font-size:clamp(30px,5vw,44px);line-height:1.08;margin:0 0 10px}
+h2{font-size:clamp(22px,3vw,28px);margin:34px 0 8px}p,li{color:var(--muted);font-size:17px}a{color:var(--green)}
+.lede{font-size:20px;color:var(--ink)}
+ul.check{list-style:none;padding:0}ul.check li{padding:8px 0 8px 30px;position:relative;border-bottom:1px solid var(--line)}
+ul.check li:before{content:"\2713";position:absolute;left:0;color:var(--green);font-weight:800}
+.cta{margin:30px 0;padding:24px;border-radius:10px;background:var(--ink);color:#fff}.cta p{color:#dce5e2}
+.btn{display:inline-flex;min-height:46px;align-items:center;padding:0 18px;border-radius:8px;border:1px solid #fff;color:#fff;text-decoration:none;font-weight:740;margin:6px 8px 0 0}.btn.primary{background:#fff;color:var(--ink)}
+.note{font-size:13px;color:var(--muted);border-top:1px solid var(--line);margin-top:40px;padding-top:16px}
+code{background:#eef4f2;padding:1px 6px;border-radius:5px;font-size:15px}
+</style>
+</head>
+<body>
+<main>
+<h1>CLAUDE.md audit</h1>
+<p class="lede">Your <code>CLAUDE.md</code> is the first thing a coding agent reads every session. A good one cuts re-exploration and over-explaining. A bad one quietly burns tokens on every turn. Here's how to tell which you have.</p>
+
+<h2>What a good CLAUDE.md does</h2>
+<p>It front-loads the things the agent would otherwise rediscover: how the project is structured, the exact build/test/lint commands, naming and style conventions, what's off-limits, and how to verify a change. It is specific, current, and short.</p>
+
+<h2>The common mistakes that cost tokens</h2>
+<ul class="check">
+<li><strong>Too long.</strong> A 600-line CLAUDE.md is loaded every turn. Bloat here is the most expensive bloat in the repo.</li>
+<li><strong>Stale.</strong> References to moved files or removed scripts send the agent on dead-end reads.</li>
+<li><strong>Vague.</strong> "Write clean code" does nothing. "Run <code>pnpm test</code>; components live in <code>src/ui</code>" does a lot.</li>
+<li><strong>Missing commands.</strong> If the agent can't find how to build/test, it guesses — and guessing is expensive.</li>
+<li><strong>No scope/guardrails.</strong> Without "don't touch generated files," the agent wanders into <code>dist/</code>.</li>
+</ul>
+
+<h2>The 9-point audit checklist</h2>
+<ul class="check">
+<li>Project purpose and architecture in under ~10 lines</li>
+<li>Exact build, test, lint, and run commands</li>
+<li>Where the important code lives (key directories)</li>
+<li>Conventions: naming, formatting, patterns to follow</li>
+<li>What NOT to touch (generated, vendored, lockfiles)</li>
+<li>How to verify a change is correct</li>
+<li>An explicit terseness / output-style instruction</li>
+<li>Paired with a <code>.claudeignore</code> so the file tree itself is clean</li>
+<li>Short enough that loading it every turn is cheap</li>
+</ul>
+
+<div class="cta">
+<h2 style="margin-top:0;color:#fff">Want this audited for your repo?</h2>
+<p>The free scanner flags whether your repo even has agent instructions and ignore rules. The 48-hour private audit reviews your actual <code>CLAUDE.md</code>, rewrites it, and ships a tuned CI gate plus a fix plan.</p>
+<a class="btn primary" href="agent-cost-leak-checker.html">Run the free scan</a>
+<a class="btn" href="https://buy.polar.sh/polar_cl_z0eLsPUJeMwrcNs4MQPAQbKIM3Rbdb8fLDgVj2RZcmr">Book the $1,000 audit</a>
+</div>
+
+<p>The method behind the audit is open source and benchmarked: <a href="https://github.com/sravan27/context-os">context-os</a> measured &minus;40.9% total tokens on its own 36-call A/B (Sonnet). Your repo will differ.</p>
+<p class="note">Independent service. Not affiliated with, endorsed by, or sponsored by Anthropic. "Claude" is a trademark of Anthropic. &middot; <a href="reduce-claude-code-token-usage.html">Reduce Claude Code token usage</a></p>
+</main>
+</body>
+</html>
