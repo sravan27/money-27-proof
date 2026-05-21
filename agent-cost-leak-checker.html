@@ -36,6 +36,14 @@
       ]
     }
     </script>
+    <script type="application/ld+json">
+    {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+      {"@type":"Question","name":"What do I get for $1,000?","acceptedAnswer":{"@type":"Answer","text":"A 48-hour private-repo audit: a written report with prioritized findings, a pinned GitHub Action cost-leak gate tuned to your threshold, one concrete fix path implemented or specified, and one revision pass inside scope."}},
+      {"@type":"Question","name":"Is this affiliated with Anthropic?","acceptedAnswer":{"@type":"Answer","text":"No. It is an independent service, not affiliated with, endorsed by, or sponsored by Anthropic, Cursor, or OpenAI."}},
+      {"@type":"Question","name":"What is the refund policy?","acceptedAnswer":{"@type":"Answer","text":"If after intake I do not believe I can deliver useful findings for your codebase, I will say so and refund in full before any work starts."}},
+      {"@type":"Question","name":"Does it guarantee token savings?","acceptedAnswer":{"@type":"Answer","text":"No. It reduces and catches agent cost and context waste; it does not raise provider rate limits or guarantee a specific dollar saving. Results depend on repo size, language, and current workflow."}}
+    ]}
+    </script>
     <style>
       :root {
         --ink: #161b22;
@@ -453,6 +461,7 @@
           <div class="findings" id="findings"></div>
           <div class="actions">
             <button id="copy-report" type="button">Copy report</button>
+            <a id="share-x" class="button" href="#" target="_blank" rel="noopener">Share score</a>
             <a class="button primary" href="https://buy.polar.sh/polar_cl_z0eLsPUJeMwrcNs4MQPAQbKIM3Rbdb8fLDgVj2RZcmr">Fund $1,000 audit</a>
             <a class="button" href="mailto:sravan272001@gmail.com?subject=AI%20Agent%20Cost%20Leak%20Audit">Ask scope question</a>
           </div>
@@ -603,6 +612,7 @@ jobs:
       const METRICS = document.getElementById("metrics");
       const FINDINGS = document.getElementById("findings");
       const COPY = document.getElementById("copy-report");
+      const SHARE = document.getElementById("share-x");
 
       let lastReport = "";
 
@@ -781,6 +791,7 @@ jobs:
         else if (report.score >= 38) SCORE_BOX.classList.add("warn");
         REPO_NAME.textContent = report.name;
         SUMMARY.textContent = report.summary;
+        SHARE.href = "https://twitter.com/intent/tweet?text=" + encodeURIComponent('My repo "' + report.name + '" scored ' + report.score + '/100 on the AI agent cost-leak checker (Claude Code / Cursor / Codex).') + "&url=" + encodeURIComponent("https://sravan27.github.io/money-27-proof/agent-cost-leak-checker.html");
         METRICS.innerHTML = report.metrics.map((metric) => `
           <div class="metric">
             <strong>${escapeHtml(metric.value)}</strong>
