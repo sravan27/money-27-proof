@@ -3,9 +3,16 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>AI Agent Cost Leak Audit</title>
-    <meta name="description" content="A 48-hour audit that finds wasted Claude Code, Codex, and agentic coding spend in one repository and ships a fix path.">
-    <link rel="canonical" href="./agent-cost-leak-audit.html">
+    <title>AI Agent Cost Leak Audit — 48-hour private repo audit ($500–$1,500)</title>
+    <meta name="description" content="A 48-hour audit that finds wasted Claude Code, Codex, and agentic coding spend in one repository and ships a report, a CI leak gate, and a fix path. Independent service, not affiliated with Anthropic.">
+    <link rel="canonical" href="https://sravan27.github.io/money-27-proof/agent-cost-leak-audit.html">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Find where your AI agents are burning money — 48-hour repo audit">
+    <meta property="og:description" content="Report + CI leak gate + fix path for Claude Code / Cursor / Codex teams. $500–$1,500.">
+    <meta property="og:url" content="https://sravan27.github.io/money-27-proof/agent-cost-leak-audit.html">
+    <meta property="og:image" content="https://sravan27.github.io/money-27-proof/og-cost-leak.svg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="https://sravan27.github.io/money-27-proof/og-cost-leak.svg">
     <style>
       :root {
         --ink: #161b22;
@@ -222,7 +229,7 @@
       <aside class="panel" aria-label="Measured proof">
         <div class="metric"><div><strong>40.9%</strong><span>Aggregate token reduction measured in context-os live Claude A/B.</span></div><b>proof</b></div>
         <div class="metric"><div><strong>35.3%</strong><span>Mean wall-clock reduction in the same benchmark.</span></div><b>speed</b></div>
-        <div class="metric"><div><strong>36</strong><span>Cross-repo prompts across axios, requests, and ripgrep.</span></div><b>eval</b></div>
+        <div class="metric"><div><strong>36</strong><span>Real claude --print A/B calls behind the &minus;40.9% (6/6 prompt-level wins, p=5.1e-7).</span></div><b>eval</b></div>
         <div class="metric"><div><strong>0</strong><span>Embeddings, proxies, servers, or telemetry required.</span></div><b>local</b></div>
       </aside>
     </header>
@@ -316,7 +323,8 @@
     </section>
 
     <footer>
-      Sravan Sridhar - context-os proof: https://github.com/sravan27/context-os
+      <p style="margin:0 0 8px">Guides: <a href="reduce-claude-code-token-usage.html">Reduce Claude Code token usage</a> &middot; <a href="claude-md-audit.html">CLAUDE.md audit</a> &middot; <a href="ai-coding-agent-cost-optimization.html">Agent cost optimization</a></p>
+      Sravan Sridhar &middot; context-os proof: https://github.com/sravan27/context-os &middot; Independent service, not affiliated with, endorsed by, or sponsored by Anthropic, Cursor, or OpenAI.
     </footer>
   </body>
 </html>
