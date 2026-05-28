@@ -1,0 +1,584 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>n8n / Make Production Hardening Proof</title>
+    <meta name="description" content="Proof-of-approach for turning fragile n8n and Make automations into production-ready client workflows with retries, logs, contracts, and handoff notes.">
+    <link rel="canonical" href="https://sravan27.github.io/money-27-proof/proof/n8n_make_production_hardening.html">
+    <style>
+      :root {
+        --ink: #18201f;
+        --muted: #5c6763;
+        --paper: #fbfbf8;
+        --band: #edf2ef;
+        --white: #ffffff;
+        --line: #d6dfda;
+        --green: #176b4d;
+        --teal: #0e6b75;
+        --amber: #a76512;
+        --red: #9f3f36;
+        --blue: #28558a;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color: var(--ink);
+        background: var(--paper);
+        line-height: 1.45;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 16px clamp(20px, 4vw, 56px);
+        border-bottom: 1px solid var(--line);
+        background: var(--paper);
+      }
+
+      .brand {
+        font-size: 15px;
+        font-weight: 760;
+      }
+
+      nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      nav a {
+        text-decoration: none;
+      }
+
+      .hero {
+        min-height: 72vh;
+        display: grid;
+        grid-template-columns: minmax(0, 0.92fr) minmax(340px, 1.08fr);
+        gap: clamp(26px, 5vw, 70px);
+        align-items: center;
+        padding: clamp(42px, 7vw, 86px) clamp(20px, 4vw, 56px) 34px;
+        background: var(--band);
+      }
+
+      .eyebrow {
+        color: var(--green);
+        font-size: 14px;
+        font-weight: 760;
+        margin-bottom: 14px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(40px, 7vw, 88px);
+        line-height: 0.95;
+        letter-spacing: 0;
+      }
+
+      h2 {
+        margin: 0 0 16px;
+        font-size: clamp(26px, 3vw, 38px);
+        letter-spacing: 0;
+      }
+
+      h3 {
+        margin: 0 0 8px;
+        font-size: 18px;
+        letter-spacing: 0;
+      }
+
+      p {
+        color: var(--muted);
+      }
+
+      .hero p {
+        max-width: 640px;
+        margin: 22px 0 0;
+        font-size: clamp(17px, 2vw, 22px);
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 26px;
+      }
+
+      .button {
+        min-height: 46px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--ink);
+        border-radius: 8px;
+        padding: 0 16px;
+        text-decoration: none;
+        font-weight: 720;
+        background: var(--white);
+      }
+
+      .button.primary {
+        background: var(--ink);
+        color: var(--white);
+      }
+
+      .board {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      .metric,
+      .module,
+      .slice,
+      .risk,
+      .artifact {
+        background: var(--white);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+      }
+
+      .metric {
+        min-height: 122px;
+        padding: 16px;
+      }
+
+      .metric span,
+      .module span,
+      .slice span,
+      .risk span,
+      .artifact span {
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .metric strong {
+        display: block;
+        font-size: clamp(26px, 4vw, 46px);
+        line-height: 1;
+        margin-bottom: 10px;
+      }
+
+      .metric:nth-child(1) strong {
+        color: var(--teal);
+      }
+
+      .metric:nth-child(2) strong {
+        color: var(--amber);
+      }
+
+      .metric:nth-child(3) strong {
+        color: var(--green);
+      }
+
+      .metric:nth-child(4) strong {
+        color: var(--blue);
+      }
+
+      section {
+        padding: clamp(42px, 6vw, 74px) clamp(20px, 4vw, 56px);
+      }
+
+      .section-head {
+        max-width: 820px;
+        margin-bottom: 24px;
+      }
+
+      .modules {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .module {
+        min-height: 210px;
+        padding: 16px;
+      }
+
+      .stripe {
+        width: 100%;
+        height: 8px;
+        border-radius: 999px;
+        margin-bottom: 18px;
+        background: var(--teal);
+      }
+
+      .module:nth-child(2) .stripe {
+        background: var(--amber);
+      }
+
+      .module:nth-child(3) .stripe {
+        background: var(--green);
+      }
+
+      .module:nth-child(4) .stripe {
+        background: var(--blue);
+      }
+
+      .split {
+        display: grid;
+        grid-template-columns: minmax(0, 0.86fr) minmax(360px, 1.14fr);
+        gap: 18px;
+        align-items: start;
+      }
+
+      .slices {
+        display: grid;
+        gap: 10px;
+      }
+
+      .slice {
+        display: grid;
+        grid-template-columns: 46px 1fr;
+        gap: 14px;
+        align-items: start;
+        padding: 14px;
+      }
+
+      .num {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        color: var(--white);
+        background: var(--ink);
+        font-weight: 780;
+      }
+
+      .flow {
+        display: grid;
+        gap: 10px;
+      }
+
+      .node {
+        display: grid;
+        grid-template-columns: 118px 1fr 102px;
+        gap: 12px;
+        align-items: center;
+        min-height: 68px;
+        padding: 12px;
+        background: var(--white);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+      }
+
+      .node b {
+        font-size: 14px;
+      }
+
+      .node span {
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .tag {
+        justify-self: end;
+        border-radius: 999px;
+        color: var(--white);
+        background: var(--teal);
+        padding: 5px 9px;
+        font-size: 12px;
+        font-weight: 720;
+      }
+
+      .node:nth-child(2) .tag,
+      .node:nth-child(6) .tag {
+        background: var(--amber);
+      }
+
+      .node:nth-child(4) .tag {
+        background: var(--red);
+      }
+
+      .node:nth-child(5) .tag {
+        background: var(--green);
+      }
+
+      .risk-grid,
+      .artifact-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .risk,
+      .artifact {
+        min-height: 168px;
+        padding: 16px;
+      }
+
+      .risk b,
+      .artifact b {
+        display: block;
+        margin-bottom: 8px;
+      }
+
+      pre {
+        margin: 0;
+        overflow-x: auto;
+        white-space: pre;
+        border-radius: 8px;
+        background: #101817;
+        color: #eef7f2;
+        padding: 18px;
+        font-size: 13px;
+        line-height: 1.55;
+      }
+
+      .code-wrap {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(300px, 0.62fr);
+        gap: 18px;
+      }
+
+      .checklist {
+        background: var(--white);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 18px;
+      }
+
+      .checklist ul {
+        margin: 0;
+        padding-left: 20px;
+      }
+
+      .checklist li {
+        margin: 10px 0;
+      }
+
+      footer {
+        padding: 22px clamp(20px, 4vw, 56px) 36px;
+        color: var(--muted);
+        border-top: 1px solid var(--line);
+      }
+
+      @media (max-width: 900px) {
+        header,
+        nav {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .hero,
+        .split,
+        .code-wrap {
+          grid-template-columns: 1fr;
+        }
+
+        .modules,
+        .risk-grid,
+        .artifact-grid {
+          grid-template-columns: 1fr 1fr;
+        }
+
+        .node {
+          grid-template-columns: 1fr;
+        }
+
+        .tag {
+          justify-self: start;
+        }
+      }
+
+      @media (max-width: 620px) {
+        .board,
+        .modules,
+        .risk-grid,
+        .artifact-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .slice {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="brand">Sravan Sridhar</div>
+      <nav aria-label="Proof links">
+        <a href="../index.html">Proof Hub</a>
+        <a href="retell_ghl_workflow_demo.html">Retell / GHL</a>
+        <a href="ai_email_classifier_demo.html">Email Classifier</a>
+        <a href="outbound_guard_demo.html">Outbound Guard</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div>
+          <div class="eyebrow">Proof-of-approach for paid automation sprints</div>
+          <h1>Make the workflow boring enough to bill for.</h1>
+          <p>
+            A production hardening pass for n8n or Make turns a fragile demo into a workflow with
+            known inputs, explicit failure states, recoverable retries, and handoff notes a client team can run.
+          </p>
+          <div class="actions">
+            <a class="button primary" href="mailto:sravan272001@gmail.com?subject=n8n%20%2F%20Make%20production%20hardening%20sprint">Discuss a workflow</a>
+            <a class="button" href="retell_ghl_n8n_blueprint.json">View sample workflow JSON</a>
+          </div>
+        </div>
+
+        <div class="board" aria-label="Production hardening summary">
+          <article class="metric"><strong>1</strong><span>Workflow slice hardened before expanding scope.</span></article>
+          <article class="metric"><strong>4</strong><span>Failure surfaces mapped: inputs, APIs, LLMs, notifications.</span></article>
+          <article class="metric"><strong>0</strong><span>Silent failures tolerated after the pass.</span></article>
+          <article class="metric"><strong>48h</strong><span>Typical paid prototype or audit window when access is ready.</span></article>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-head">
+          <h2>What Gets Hardened</h2>
+          <p>These are the parts that separate a demo canvas from an operations workflow.</p>
+        </div>
+        <div class="modules">
+          <article class="module">
+            <div class="stripe"></div>
+            <h3>Input Contract</h3>
+            <span>Required fields, payload examples, empty-state behavior, and source-of-truth ownership.</span>
+          </article>
+          <article class="module">
+            <div class="stripe"></div>
+            <h3>State Ledger</h3>
+            <span>Run IDs, status columns, retry count, last error, final action, and human review state.</span>
+          </article>
+          <article class="module">
+            <div class="stripe"></div>
+            <h3>LLM Boundary</h3>
+            <span>Structured output schema, validation before side effects, and fallback when the model drifts.</span>
+          </article>
+          <article class="module">
+            <div class="stripe"></div>
+            <h3>Handoff Pack</h3>
+            <span>Scenario map, credential notes, support SOP, restore path, and a short client-facing summary.</span>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <div class="split">
+          <div>
+            <div class="section-head">
+              <h2>First Paid Slice</h2>
+              <p>A small slice should be real enough to prove risk, but bounded enough to finish.</p>
+            </div>
+            <div class="slices">
+              <article class="slice">
+                <div class="num">1</div>
+                <div><h3>Pick one workflow</h3><span>Lead capture, missed-call text-back, content pipeline, recovery flow, or checkout-to-task routing.</span></div>
+              </article>
+              <article class="slice">
+                <div class="num">2</div>
+                <div><h3>Lock the contract</h3><span>Define the trigger payload, required fields, downstream API calls, and expected final states.</span></div>
+              </article>
+              <article class="slice">
+                <div class="num">3</div>
+                <div><h3>Add safety rails</h3><span>Retries, idempotency keys, exception queues, validation checks, and approval before external side effects.</span></div>
+              </article>
+              <article class="slice">
+                <div class="num">4</div>
+                <div><h3>Leave it operable</h3><span>Run log, screenshots, environment notes, restore steps, and a clear list of what to expand next.</span></div>
+              </article>
+            </div>
+          </div>
+
+          <div class="flow" aria-label="Workflow reliability map">
+            <div class="node"><b>Webhook</b><span>Validate signature, required fields, duplicate event ID.</span><span class="tag">input</span></div>
+            <div class="node"><b>Normalize</b><span>Map into a canonical row with source, owner, and next action.</span><span class="tag">state</span></div>
+            <div class="node"><b>LLM Step</b><span>Prompt with schema, parse JSON, reject malformed or risky output.</span><span class="tag">schema</span></div>
+            <div class="node"><b>API Action</b><span>Call CRM, SMS, PMS, Drive, or ATS only after validation.</span><span class="tag">side effect</span></div>
+            <div class="node"><b>Notify</b><span>Slack, email, WhatsApp, or dashboard update with run context.</span><span class="tag">visible</span></div>
+            <div class="node"><b>Recover</b><span>Retry queue, manual review, and a restore path for stuck runs.</span><span class="tag">fallback</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-head">
+          <h2>Common Failure Modes</h2>
+          <p>A hardening sprint starts by making the hidden failure modes visible.</p>
+        </div>
+        <div class="risk-grid">
+          <article class="risk"><b>Duplicate Side Effects</b><span>The same webhook creates two CRM records, two SMS messages, or two lock PIN changes. Fix: idempotency key and run ledger.</span></article>
+          <article class="risk"><b>Model Drift</b><span>An LLM returns prose instead of JSON or invents a field. Fix: schema validation and no external action until the output passes.</span></article>
+          <article class="risk"><b>API Backpressure</b><span>Video, CRM, PMS, or SMS APIs timeout under load. Fix: queue, polling/webhook handling, and visible retry state.</span></article>
+          <article class="risk"><b>Credential Sprawl</b><span>Keys sit in copied scenarios or screenshots. Fix: credential boundary notes and no secrets in handoff artifacts.</span></article>
+          <article class="risk"><b>Human Approval Gaps</b><span>Outreach, content, or operational changes fire before review. Fix: explicit approved/rejected/needs-info states.</span></article>
+          <article class="risk"><b>No Recovery Path</b><span>A failed run vanishes into execution history. Fix: exception queue with payload, error, owner, and next action.</span></article>
+        </div>
+      </section>
+
+      <section>
+        <div class="code-wrap">
+          <pre aria-label="Sample workflow contract">{
+  "run_id": "lead_2026_0528_001",
+  "source": "ghl_webhook",
+  "required_fields": ["contact_id", "phone", "intent", "client_account"],
+  "llm_output_schema": {
+    "priority": "low | normal | urgent",
+    "next_action": "book | nurture | review | reject",
+    "reason": "string under 240 chars"
+  },
+  "side_effects": [
+    "update_crm_stage",
+    "send_sms_after_approval",
+    "slack_ops_alert"
+  ],
+  "recovery": {
+    "max_retries": 3,
+    "exception_queue": "workflow_failures",
+    "owner": "ops"
+  }
+}</pre>
+          <div class="checklist">
+            <h2>Deliverables</h2>
+            <ul>
+              <li>Workflow map with trigger, branches, data stores, APIs, and owners.</li>
+              <li>Run ledger fields and failure states the team can inspect.</li>
+              <li>One hardened workflow slice or a precise repair plan if access is read-only.</li>
+              <li>Client-safe summary of what changed, what remains risky, and what to build next.</li>
+              <li>No production secrets in reports, screenshots, or public proof assets.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-head">
+          <h2>Where This Fits</h2>
+          <p>The same production pattern applies across several paid buyer problems.</p>
+        </div>
+        <div class="artifact-grid">
+          <article class="artifact"><b>GHL + SMS Agencies</b><span>Webhook templates, missed-call text-back, reviews, appointment reminders, client cloneability.</span></article>
+          <article class="artifact"><b>Recruiting Ops</b><span>Candidate intake, enrichment, job matching, ATS updates, review queues, and outreach approval gates.</span></article>
+          <article class="artifact"><b>Ecommerce Content</b><span>Script intake, LLM scene JSON, async video generation, Drive output, status tracking, and approval.</span></article>
+          <article class="artifact"><b>Voice AI Pipelines</b><span>Retell/Vapi call data, qualification routing, CRM updates, fallback SMS, and failed-call triage.</span></article>
+          <article class="artifact"><b>Short-Term Rentals</b><span>PMS events, smart lock APIs, QA forms, OpenAI Vision checks, staff notifications, and audit logs.</span></article>
+          <article class="artifact"><b>Client Delivery Agencies</b><span>Turning demos into repeatable, documented, supportable workflows before scaling to more clients.</span></article>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      Built as a proof asset for fixed-scope n8n / Make production-hardening sprints. Contact: sravan272001@gmail.com.
+    </footer>
+  </body>
+</html>
