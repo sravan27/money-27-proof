@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The same LIKE bug in five local-first databases</title>
+<meta name="description" content="I audited how five local-first / sync databases evaluate SQL LIKE on the client. All five had silent-wrong-result bugs in the same family. Here's the pattern, a portable test, and the fixes.">
+<link rel="canonical" href="https://sravan27.github.io/money-27-proof/like-bug-five-databases.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="The same LIKE bug in five local-first databases">
+<meta property="og:description" content="ElectricSQL, Triplit, Zero, WatermelonDB and InstantDB all got client-side SQL LIKE wrong, in the same way. The pattern, a 10-second test, and 5 fix PRs.">
+<meta property="og:url" content="https://sravan27.github.io/money-27-proof/like-bug-five-databases.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The same LIKE bug in five local-first databases">
+<meta name="twitter:description" content="Five local-first databases, the same silent-wrong-result LIKE bug. Pattern + portable test + 5 fix PRs.">
+<style>
+  :root { color-scheme: light dark; }
+  body { max-width: 760px; margin: 0 auto; padding: 2.2rem 1.2rem 4rem; font: 17px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; color: #1a1a1a; background: #fff; }
+  @media (prefers-color-scheme: dark){ body{ background:#0d1117; color:#e6edf3 } a{ color:#6cb6ff } code,pre{ background:#161b22 !important; color:#e6edf3 } th,td{ border-color:#30363d !important } tr:nth-child(even){ background:#161b22 } }
+  h1 { font-size: 1.9rem; line-height: 1.2; margin: 0 0 .4rem; }
+  h2 { font-size: 1.3rem; margin: 2.2rem 0 .6rem; }
+  .sub { color: #666; margin: 0 0 1.6rem; }
+  a { color: #0969da; }
+  code { background: #f3f4f6; padding: .12em .35em; border-radius: 4px; font-size: .9em; }
+  pre { background: #f6f8fa; padding: 1rem; border-radius: 8px; overflow-x: auto; }
+  pre code { background: none; padding: 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; margin: 1rem 0; }
+  th,td { border: 1px solid #d0d7de; padding: .5rem .6rem; text-align: left; vertical-align: top; }
+  th { background: #f6f8fa; }
+  @media (prefers-color-scheme: dark){ th{ background:#161b22 } }
+  .cta { margin: 2rem 0; padding: 1.1rem 1.2rem; border: 1px solid #d0d7de; border-radius: 10px; }
+  .note { color: #666; font-size: .9rem; font-style: italic; }
+</style>
+</head>
+<body>
+<h1>The same <code>LIKE</code> bug in five local-first databases</h1>
+<p class="sub">A field report on client-side query correctness — with a 10-second test for your own engine.</p>
+
+<p>Local-first and sync engines all share one hard problem: the <strong>client</strong> has to
+re-evaluate queries against its local copy of the data (for optimistic updates, offline reads,
+and reactive subscriptions), and that client-side evaluation has to agree with whatever the
+<strong>server / SQLite / Postgres</strong> would have returned. The moment the two disagree you
+get <em>silent wrong results</em> — a row appears locally that the server would never return, or
+vice-versa. For a database that's the worst class of bug: no error, no crash, just quietly
+incorrect data.</p>
+
+<p>I audited how several popular local-first / query engines implement one tiny, ubiquitous
+operator — SQL <code>LIKE</code> — in their client-side matcher. <strong>Five of them got it wrong,
+in the same family of ways.</strong> All five now have fixes proposed:</p>
+
+<table>
+<tr><th>Project</th><th>Root cause</th><th>Symptom</th><th>PR</th></tr>
+<tr><td>ElectricSQL</td><td>regex without dotall, <code>^…$</code> anchoring, escaped <code>\%</code> mishandled</td><td><code>%</code>/<code>_</code> miss newlines; <code>'ab\n' LIKE 'ab'</code> true; escaped wildcard wrong</td><td><a href="https://github.com/electric-sql/electric/pull/4437">electric#4437</a></td></tr>
+<tr><td>Triplit</td><td>regex without the dotall flag</td><td><code>'a\nb' LIKE 'a%b'</code> → false (should be true)</td><td><a href="https://github.com/aspen-cloud/triplit/pull/407">triplit#407</a></td></tr>
+<tr><td>Zero (Rocicorp)</td><td><code>m</code> (multiline) flag instead of <code>s</code> (dotall)</td><td>false negatives <em>and</em> false positives vs SQLite</td><td><a href="https://github.com/rocicorp/mono/pull/6083">mono#6083</a></td></tr>
+<tr><td>WatermelonDB</td><td>regex metacharacters never escaped</td><td><code>Q.like('a.b')</code> matches <code>'axb'</code>; <code>Q.like('a(b')</code> throws</td><td><a href="https://github.com/Nozbe/WatermelonDB/pull/1968">WatermelonDB#1968</a></td></tr>
+<tr><td>InstantDB</td><td>regex without the dotall flag</td><td><code>$like</code> misses newlines; diverges from the Postgres server</td><td><a href="https://github.com/instantdb/instant/pull/2714">instant#2714</a></td></tr>
+</table>
+
+<h2>The pattern</h2>
+<p>SQL <code>LIKE</code> is deceptively simple: <code>%</code> matches any run of characters,
+<code>_</code> matches exactly one, <strong>everything else is a literal</strong>, and — crucially —
+the wildcards match <em>any</em> character, <strong>including newlines</strong>. The whole value
+must match. The usual implementation compiles the pattern to a regex:</p>
+<pre><code>// the tempting version
+const re = new RegExp('^' + pattern.replace(/%/g, '.*').replace(/_/g, '.') + '$')</code></pre>
+<p>This has three independent bugs, and the five projects each hit one or more:</p>
+<ol>
+<li><strong>No dotall.</strong> In JS regexes, <code>.</code> doesn't match <code>\n</code> without the <code>s</code> flag, so <code>%</code>→<code>.*</code> and <code>_</code>→<code>.</code> stop at a newline. <code>'a\nb' LIKE 'a%b'</code> returns <code>false</code>; every SQL database returns <code>true</code>.</li>
+<li><strong>No metacharacter escaping.</strong> Unescaped, characters like <code>.</code>, <code>+</code>, <code>(</code>, <code>[</code> are treated as regex. <code>LIKE 'a.b'</code> matches <code>'axb'</code>, and <code>LIKE 'a(b'</code> throws <code>Invalid regular expression</code>.</li>
+<li><strong>Wrong anchor flag.</strong> The <code>m</code> (multiline) flag makes <code>^</code>/<code>$</code> match interior line boundaries, so <code>'fooa\nbar' LIKE 'foo_'</code> returns <code>true</code> for an 8-character value. (SQLite: <code>false</code>.)</li>
+</ol>
+
+<h2>A portable test</h2>
+<p>You can check your own engine in ten seconds. The correct mapping escapes metacharacters, keeps <code>%</code>/<code>_</code> as wildcards, anchors to the whole string, and uses dotall:</p>
+<pre><code>function likeToRegExp(pattern, caseInsensitive = false) {
+  const escaped = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+  const body = escaped.replace(/%/g, '.*').replace(/_/g, '.')
+  return new RegExp('^' + body + '$', caseInsensitive ? 'is' : 's')
+}</code></pre>
+<p>And the cases that catch the bugs (all should match a real SQL <code>LIKE</code>):</p>
+<pre><code>'a\nb'    LIKE 'a%b'   =&gt; true     // % spans newlines
+'a\nb'    LIKE 'a_b'   =&gt; true     // _ matches a newline
+'ab\n'    LIKE 'ab'    =&gt; false    // whole value must match
+'fooa\nb' LIKE 'foo_'  =&gt; false    // no interior-line matching
+'a.b'     LIKE 'a.b'   =&gt; true     // dot is a literal
+'axb'     LIKE 'a.b'   =&gt; false    // …not "any char"
+'a(b'     LIKE 'a(b'   =&gt; true     // and must not throw</code></pre>
+<p>If your client-side matcher disagrees with your server on any of these, you have silently-wrong query results in production.</p>
+
+<div class="cta">
+<p><strong>I do focused database-compatibility hardening.</strong> I diff a client/embedded query evaluator against the real database semantics it should mirror, then ship reduced repros, fixes, and regression tests. <code>LIKE</code> is just the easiest one to demo — the same divergences show up in null / three-valued logic, type coercion, collation/ordering, and numeric edge cases.</p>
+<p>If you maintain a local-first DB or sync engine, I run this as a fixed-scope <strong>48-hour compatibility-hardening sprint</strong>: one bounded area, fixed price, repros + fixes + tests + handoff notes.</p>
+<p>→ <a href="https://buy.polar.sh/polar_cl_z0eLsPUJeMwrcNs4MQPAQbKIM3Rbdb8fLDgVj2RZcmr"><strong>Book a sprint</strong></a> &nbsp;·&nbsp; or email <a href="mailto:sravan272001@gmail.com">sravan272001@gmail.com</a></p>
+</div>
+
+<p class="note">All five PRs were opened constructively, with tests, against each project's own contribution guidelines. Thanks to those teams for building in the open.</p>
+</body>
+</html>
