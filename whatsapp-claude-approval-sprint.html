@@ -1,0 +1,495 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>WhatsApp + Claude Approval Sprint - Sravan Sridhar</title>
+    <meta name="description" content="A fixed 48-hour implementation sprint for WhatsApp Business API, Make.com, Claude, Gmail drafting, and human approval before any message is sent.">
+    <link rel="canonical" href="https://sravan27.github.io/money-27-proof/whatsapp-claude-approval-sprint.html">
+    <style>
+      :root {
+        --ink: #17201f;
+        --muted: #5a6662;
+        --paper: #fbfbf8;
+        --band: #eef3ef;
+        --white: #ffffff;
+        --line: #d7dfdb;
+        --green: #176b4d;
+        --teal: #0e6b75;
+        --blue: #28558a;
+        --amber: #a76512;
+        --red: #9f3f36;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background: var(--paper);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.48;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 18px;
+        padding: 16px clamp(20px, 4vw, 56px);
+        border-bottom: 1px solid var(--line);
+        background: var(--paper);
+      }
+
+      .brand {
+        font-size: 15px;
+        font-weight: 760;
+      }
+
+      nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      nav a {
+        text-decoration: none;
+      }
+
+      .hero {
+        min-height: 74vh;
+        display: grid;
+        grid-template-columns: minmax(0, 0.92fr) minmax(330px, 1.08fr);
+        gap: clamp(28px, 5vw, 70px);
+        align-items: center;
+        padding: clamp(42px, 7vw, 86px) clamp(20px, 4vw, 56px) 34px;
+        background: var(--band);
+      }
+
+      .eyebrow {
+        margin-bottom: 14px;
+        color: var(--green);
+        font-size: 14px;
+        font-weight: 760;
+      }
+
+      h1 {
+        margin: 0;
+        max-width: 820px;
+        font-size: clamp(40px, 7vw, 86px);
+        line-height: 0.96;
+        letter-spacing: 0;
+      }
+
+      h2 {
+        margin: 0 0 16px;
+        font-size: clamp(26px, 3vw, 38px);
+        letter-spacing: 0;
+      }
+
+      h3 {
+        margin: 0 0 8px;
+        font-size: 18px;
+        letter-spacing: 0;
+      }
+
+      p {
+        color: var(--muted);
+      }
+
+      .hero p {
+        max-width: 660px;
+        margin: 22px 0 0;
+        font-size: clamp(17px, 2vw, 22px);
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 28px;
+      }
+
+      .button {
+        min-height: 46px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--ink);
+        border-radius: 8px;
+        padding: 0 16px;
+        background: var(--white);
+        font-weight: 720;
+        text-decoration: none;
+      }
+
+      .button.primary {
+        background: var(--ink);
+        color: var(--white);
+      }
+
+      .demo {
+        display: grid;
+        gap: 12px;
+      }
+
+      .phone,
+      .runlog {
+        background: var(--white);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        box-shadow: 0 18px 38px rgba(23, 32, 31, 0.08);
+      }
+
+      .phone {
+        padding: 18px;
+      }
+
+      .phone-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: 12px;
+        margin-bottom: 12px;
+        border-bottom: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .bubble {
+        max-width: 86%;
+        margin: 10px 0;
+        padding: 12px;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: #f8faf8;
+        font-size: 14px;
+      }
+
+      .bubble.ai {
+        margin-left: auto;
+        background: #eef6f7;
+        border-color: #c6dfe3;
+      }
+
+      .approval {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 14px;
+      }
+
+      .approval span {
+        min-height: 42px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 760;
+      }
+
+      .approval span:first-child {
+        background: var(--green);
+        color: var(--white);
+      }
+
+      .approval span:last-child {
+        border: 1px solid var(--line);
+        color: var(--red);
+      }
+
+      .runlog {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1px;
+        overflow: hidden;
+        background: var(--line);
+      }
+
+      .log-item {
+        min-height: 92px;
+        padding: 14px;
+        background: var(--white);
+      }
+
+      .log-item strong {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
+      }
+
+      .log-item span {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      section {
+        padding: clamp(42px, 6vw, 76px) clamp(20px, 4vw, 56px);
+      }
+
+      .section-head {
+        max-width: 760px;
+        margin-bottom: 26px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+      }
+
+      .card,
+      .check,
+      .asset {
+        background: var(--white);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 18px;
+      }
+
+      .card span,
+      .check span,
+      .asset span {
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .number {
+        color: var(--teal);
+        font-size: 32px;
+        line-height: 1;
+        font-weight: 800;
+        margin-bottom: 12px;
+      }
+
+      .split {
+        display: grid;
+        grid-template-columns: minmax(0, 0.9fr) minmax(320px, 1.1fr);
+        gap: 18px;
+        align-items: start;
+      }
+
+      .checks {
+        display: grid;
+        gap: 10px;
+      }
+
+      .check {
+        display: grid;
+        grid-template-columns: 18px 1fr;
+        gap: 12px;
+      }
+
+      .mark {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background: var(--green);
+        margin-top: 3px;
+      }
+
+      .asset-list {
+        display: grid;
+        gap: 12px;
+      }
+
+      .asset {
+        display: block;
+        text-decoration: none;
+      }
+
+      .asset strong {
+        display: block;
+        margin-bottom: 6px;
+      }
+
+      footer {
+        padding: 28px clamp(20px, 4vw, 56px);
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      @media (max-width: 880px) {
+        .hero,
+        .split,
+        .grid {
+          grid-template-columns: 1fr;
+        }
+
+        .runlog {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+
+      @media (max-width: 560px) {
+        header {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .runlog,
+        .approval {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="brand">Sravan Sridhar</div>
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="#scope">Scope</a>
+        <a href="#acceptance">Acceptance</a>
+        <a href="#proof">Proof</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div>
+          <div class="eyebrow">48-hour fixed sprint</div>
+          <h1>WhatsApp + Claude approval workflow</h1>
+          <p>
+            A bounded implementation for business teams that want AI-drafted WhatsApp and Gmail replies, but need a human approval gate before anything leaves the building.
+          </p>
+          <div class="actions">
+            <a class="button primary" href="#scope">View scope</a>
+            <a class="button" href="#acceptance">Acceptance test</a>
+          </div>
+        </div>
+
+        <div class="demo" aria-label="Approval workflow preview">
+          <div class="phone">
+            <div class="phone-top">
+              <strong>Approval inbox</strong>
+              <span>send locked</span>
+            </div>
+            <div class="bubble">Customer: Need 5,000 hex bolts by Friday. Do you have zinc finish?</div>
+            <div class="bubble ai">Claude draft: Yes, zinc finish is available. Please confirm size, grade, and delivery city so we can quote stock and dispatch.</div>
+            <div class="approval">
+              <span>Approve send</span>
+              <span>Reject draft</span>
+            </div>
+          </div>
+          <div class="runlog">
+            <div class="log-item">
+              <strong>Webhook</strong>
+              <span>AiSensy payload captured with contact and thread id.</span>
+            </div>
+            <div class="log-item">
+              <strong>Draft</strong>
+              <span>Claude follows business rules and fallback policy.</span>
+            </div>
+            <div class="log-item">
+              <strong>Approval</strong>
+              <span>One-tap decision logs approver and timestamp.</span>
+            </div>
+            <div class="log-item">
+              <strong>Send</strong>
+              <span>Only approved replies reach WhatsApp or Gmail.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scope">
+        <div class="section-head">
+          <h2>First release</h2>
+          <p>The sprint keeps the first version deliberately small so it can be tested in two days and expanded safely after real messages pass through it.</p>
+        </div>
+        <div class="grid">
+          <article class="card">
+            <div class="number">01</div>
+            <h3>Inbound capture</h3>
+            <span>AiSensy or WhatsApp Business API webhook into Make, with normalized customer, thread, channel, and message fields.</span>
+          </article>
+          <article class="card">
+            <div class="number">02</div>
+            <h3>Controlled drafting</h3>
+            <span>Claude prompt rules for tone, inventory caveats, escalation, missing details, and safe fallback responses.</span>
+          </article>
+          <article class="card">
+            <div class="number">03</div>
+            <h3>Human approval</h3>
+            <span>Mobile-friendly approve/reject action. Production sends stay blocked until a human approves the draft.</span>
+          </article>
+        </div>
+      </section>
+
+      <section id="acceptance">
+        <div class="split">
+          <div class="section-head">
+            <h2>Acceptance test</h2>
+            <p>One inbound test message should prove the whole system without risking accidental sends, duplicate replies, or opaque AI output.</p>
+          </div>
+          <div class="checks">
+            <div class="check">
+              <div class="mark"></div>
+              <div>
+                <strong>Inbound message stored</strong>
+                <span>Original payload, normalized fields, and run id are visible for replay and debugging.</span>
+              </div>
+            </div>
+            <div class="check">
+              <div class="mark"></div>
+              <div>
+                <strong>Draft is explainable</strong>
+                <span>The Claude step uses named rules and includes enough context for the reviewer to trust or reject it.</span>
+              </div>
+            </div>
+            <div class="check">
+              <div class="mark"></div>
+              <div>
+                <strong>Approval controls side effects</strong>
+                <span>Approved sends exactly once. Rejected sends nothing. Failures write to a dead-letter log.</span>
+              </div>
+            </div>
+            <div class="check">
+              <div class="mark"></div>
+              <div>
+                <strong>Gmail remains safe</strong>
+                <span>Email path creates drafts or approval-gated sends, depending on the buyer's preferred operating model.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="proof">
+        <div class="section-head">
+          <h2>Relevant proof</h2>
+          <p>These are the existing artifacts behind the offer: production workflow hardening, voice/CRM workflow mapping, and paid sprint execution through review.</p>
+        </div>
+        <div class="asset-list">
+          <a class="asset" href="proof/n8n_make_production_hardening.html">
+            <strong>n8n / Make production hardening</strong>
+            <span>Retries, logs, data contracts, structured LLM outputs, and handoff notes for automation systems.</span>
+          </a>
+          <a class="asset" href="proof/retell_ghl_workflow_demo.html">
+            <strong>Voice agent to CRM workflow demo</strong>
+            <span>Call outcomes mapped into booking, CRM, follow-up, and review paths with explicit branch handling.</span>
+          </a>
+          <a class="asset" href="https://github.com/powersync-ja/powersync-service/pulls?q=is%3Apr+author%3Asravan27">
+            <strong>Paid PowerSync sprint proof</strong>
+            <span>Public PRs carried through maintainer review, CI fixes, rebases, and requested behavior changes.</span>
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      Built as a proof surface for fixed-scope buyer replies. Payment links are sent only after scope and start intent are clear.
+    </footer>
+  </body>
+</html>
