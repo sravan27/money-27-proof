@@ -3,8 +3,8 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Database Compatibility Fuzzing Sprint</title>
-    <meta name="description" content="A fixed-scope 48-hour compatibility fuzzing sprint for database, sync, query, and SDK teams.">
+    <title>Database Compatibility Hardening Sprint</title>
+    <meta name="description" content="Fixed-scope compatibility hardening for database, sync, query, and SDK teams, backed by paid PowerSync sprint proof and public PRs.">
     <style>
       :root {
         --ink: #151d1f;
@@ -381,7 +381,7 @@
   </head>
   <body>
     <header>
-      <div class="brand">Database Compatibility Fuzzing Sprint</div>
+      <div class="brand">Database Compatibility Hardening Sprint</div>
       <nav aria-label="Primary">
         <a href="#scope">Scope</a>
         <a href="#proof">Proof</a>
@@ -392,45 +392,45 @@
     <main>
       <section class="hero">
         <div>
-          <div class="eyebrow">48-hour compatibility pass for database, sync, and query teams</div>
-          <h1>Find one real engine or SDK bug before your users do.</h1>
-          <p>I run a focused fuzzing and differential-testing sprint against one narrow surface: SQL compatibility, query planning, schema rewrites, sync edge cases, SDK adapters, or import/export paths. The deliverable is a reduced repro, a fix PR when feasible, and a maintainer-grade writeup.</p>
+          <div class="eyebrow">Proof-led compatibility pass for database, sync, and query teams</div>
+          <h1>Turn one risky query surface into merged fixes and regression tests.</h1>
+          <p>I run a focused hardening sprint against one narrow surface: SQL compatibility, query planning, schema rewrites, sync edge cases, SDK adapters, or import/export paths. The deliverable is a reduced repro, a failing test, a fix PR when feasible, and a maintainer-grade handoff.</p>
           <div class="actions">
-            <a class="button primary" href="mailto:sravan272001@gmail.com?subject=Database%20Compatibility%20Fuzzing%20Sprint">Request a scope check</a>
+            <a class="button primary" href="mailto:sravan272001@gmail.com?subject=Database%20Compatibility%20Hardening%20Sprint">Request a scope check</a>
             <a class="button" href="#proof">See shipped proof</a>
           </div>
         </div>
 
         <div class="panel" aria-label="Recent proof trace">
           <div class="panel-title">
-            <strong>Recent 90-minute trace</strong>
-            <span class="status">2 PRs + 1 open issue</span>
+            <strong>Recent paid-sprint trace</strong>
+            <span class="status">4 merged PRs</span>
           </div>
           <div class="trace">
             <div class="event">
               <div class="dot"></div>
-              <div><b>Differential fuzzer signal</b><span>SQLite succeeded while Turso rejected a temp-trigger schema rewrite</span></div>
-              <span class="tag">Find</span>
+              <div><b>Buyer-funded scope</b><span>PowerSync paid for a focused SQLite compatibility sprint through Polar.</span></div>
+              <span class="tag">Paid</span>
             </div>
             <div class="event">
               <div class="dot"></div>
-              <div><b>Three-statement repro</b><span>Reduced to CREATE TABLE, CREATE TEMP TRIGGER, ALTER TABLE RENAME COLUMN</span></div>
+              <div><b>Four accepted fixes</b><span>PRs #644, #645, #646, and #647 were merged after maintainer review.</span></div>
               <span class="tag">Reduce</span>
             </div>
             <div class="event">
               <div class="dot"></div>
-              <div><b>Patch and tests</b><span>Normal and MVCC regression, CLI repro, exact fuzzer seed all pass</span></div>
+              <div><b>Review-safe finish</b><span>Follow-up fixes landed only when maintainers requested them, with the paid scope kept clean.</span></div>
               <span class="tag">Fix</span>
             </div>
             <div class="event">
               <div class="dot"></div>
-              <div><b>Upstream PR</b><span>Turso PR #7144 was submitted from a clean branch with the regression attached</span></div>
+              <div><b>Current proof queue</b><span>RxDB, Dexie, Prebid salesagent, Electric, and Convex PRs show the same reduced-repro style.</span></div>
               <span class="tag">Ship</span>
             </div>
             <div class="event">
               <div class="dot"></div>
-              <div><b>Invalid SQL mutation report</b><span>SQLite rejects an undefined CTE column while Turso accepts the UPDATE and mutates data</span></div>
-              <span class="tag">Report</span>
+              <div><b>Payment boundary</b><span>No checkout link is sent until scope and start intent are confirmed.</span></div>
+              <span class="tag">Clean</span>
             </div>
           </div>
         </div>
@@ -444,7 +444,7 @@
         <div class="grid">
           <article class="card">
             <h3>Diagnostic</h3>
-            <div class="price">$500</div>
+            <div class="price">$900</div>
             <ul>
               <li>One target surface reviewed.</li>
               <li>One reduced repro or risk report when a bug is found.</li>
@@ -453,7 +453,7 @@
           </article>
           <article class="card">
             <h3>48-hour sprint</h3>
-            <div class="price">$1,000</div>
+            <div class="price">$2,000</div>
             <ul>
               <li>Focused fuzzing or differential test harness pass.</li>
               <li>Reduced repro and failing test.</li>
@@ -461,12 +461,12 @@
             </ul>
           </article>
           <article class="card">
-            <h3>Handoff plus</h3>
-            <div class="price">$1,500</div>
+            <h3>5-day hardening</h3>
+            <div class="price">$5,000</div>
             <ul>
               <li>Everything in the sprint.</li>
-              <li>Repro suite and maintainer notes.</li>
-              <li>Follow-up hardening checklist for your team.</li>
+              <li>Two to three adjacent bug classes or adapter surfaces.</li>
+              <li>Repro suite, maintainer notes, and follow-up hardening checklist.</li>
             </ul>
           </article>
         </div>
@@ -478,6 +478,26 @@
           <p>These are real public artifacts, not screenshots of intent.</p>
         </div>
         <div class="proof-links">
+          <a class="proof-link" href="https://github.com/powersync-ja/powersync-service/pulls?q=author%3Asravan27">
+            <strong>PowerSync paid sprint</strong>
+            <span>Buyer-funded compatibility scope with four merged PRs and clean maintainer close-out.</span>
+          </a>
+          <a class="proof-link" href="https://github.com/pubkey/rxdb/pull/8601">
+            <strong>RxDB PR #8601</strong>
+            <span>Query-planner regression for out-of-schema numeric bounds, with CI blocker fixed after review.</span>
+          </a>
+          <a class="proof-link" href="https://github.com/dexie/Dexie.js/pull/2306">
+            <strong>Dexie PR #2306</strong>
+            <span>equalsIgnoreCase() fallback for length-changing Unicode case folds that would otherwise silently drop rows.</span>
+          </a>
+          <a class="proof-link" href="https://github.com/prebid/salesagent/pull/1380">
+            <strong>Prebid salesagent PR #1380</strong>
+            <span>AdCP v3 pricing-field fix for authenticated buyers seeing the anonymous-pricing message.</span>
+          </a>
+          <a class="proof-link" href="https://github.com/electric-sql/electric/pull/4437">
+            <strong>Electric PR #4437</strong>
+            <span>Postgres LIKE compatibility fixes with function-level repros and green code checks.</span>
+          </a>
           <a class="proof-link" href="https://github.com/tursodatabase/turso/issues/7146">
             <strong>Turso issue #7146</strong>
             <span>Reduced invalid CTE UPDATE repro: SQLite errors and leaves data unchanged, while Turso accepts the statement and mutates a row.</span>
@@ -507,7 +527,7 @@
           <p>Good inputs: a repo link, a failing compatibility area, a query feature, an SDK adapter, or one engine behavior you do not fully trust.</p>
         </div>
         <div class="actions">
-          <a class="button primary" href="mailto:sravan272001@gmail.com?subject=Database%20Compatibility%20Fuzzing%20Sprint">Start by email</a>
+          <a class="button primary" href="mailto:sravan272001@gmail.com?subject=Database%20Compatibility%20Hardening%20Sprint">Start by email</a>
           <a class="button" href="https://github.com/sravan27">View GitHub profile</a>
         </div>
       </section>
