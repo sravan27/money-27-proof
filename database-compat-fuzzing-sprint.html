@@ -479,8 +479,24 @@
         </div>
         <div class="proof-links">
           <a class="proof-link" href="https://github.com/powersync-ja/powersync-service/pulls?q=author%3Asravan27">
-            <strong>PowerSync paid sprint</strong>
-            <span>Buyer-funded compatibility scope with four merged PRs and clean maintainer close-out.</span>
+            <strong>PowerSync — 8 PRs (4 merged, 4 open Jun 6-7)</strong>
+            <span>Buyer-funded Sprint #1 merged four LIKE/range/cast/json_each fixes (#644-#647); follow-on weekend opened JOIN-loud-error #662, ASCII upper/lower #663, length() code points #664, substring() code points #665.</span>
+          </a>
+          <a class="proof-link" href="https://github.com/TanStack/db/pull/1574">
+            <strong>TanStack DB PR #1574 (Jun 7)</strong>
+            <span>ASCII case fold in upper/lower/ilike so the JS evaluator agrees with the source DB on the German sharp s, ligatures, and Turkish dotted-i. All 99 evaluator tests pass.</span>
+          </a>
+          <a class="proof-link" href="https://github.com/TanStack/cli/pull/467">
+            <strong>TanStack/cli PR #467 (Jun 7)</strong>
+            <span>Documents the four sync-stream SQL footguns in the PowerSync add-on starter so generated apps know which queries silently drop rows.</span>
+          </a>
+          <a class="proof-link" href="https://github.com/sravan27/silentdrop">
+            <strong>silentdrop (MIT, npm)</strong>
+            <span>Open-source correctness checker that runs the four divergence classes (LIKE-newline, LIKE-escape, case-fold-length-change, non-BMP ordering) against any JS database query layer. Same shape as the PowerSync / TanStack DB / Zero / InstantDB / Electric / Dexie / RxDB / Autumn fixes.</span>
+          </a>
+          <a class="proof-link" href="https://github.com/sravan27/silentdrop-llm">
+            <strong>silentdrop-llm (MIT, npm)</strong>
+            <span>Same lens applied to LLM/agent JSON outputs — missing required fields, enum drift, hallucinated IDs, claim-vs-list mismatches. Runtime guard before downstream code commits to wrong state.</span>
           </a>
           <a class="proof-link" href="https://github.com/instantdb/instant/pull/2714">
             <strong>InstantDB PR #2714</strong>
