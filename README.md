@@ -10,9 +10,9 @@ A manual audit of your real repo structure, `CLAUDE.md`/agent instructions, igno
 
 | Tier | Price | |
 |---|---|---|
-| Diagnostic Fix | $500 | [Fund](https://buy.polar.sh/polar_cl_G0fuUHHZ1tg9E0oe7gluje9gs44l8FAqVnfwS2AJkbw) |
-| **48-Hour Audit + Fix Plan** (recommended) | **$1,000** | [Fund](https://buy.polar.sh/polar_cl_z0eLsPUJeMwrcNs4MQPAQbKIM3Rbdb8fLDgVj2RZcmr) |
-| Audit + Handoff | $1,500 | [Fund](https://buy.polar.sh/polar_cl_B12Farw9U5lr1SvYHDzmLAL4fo8bSt1ZNTMcD0wVcmo) |
+| Diagnostic Fix | $500 | [Fund](mailto:sravan272001@gmail.com?subject=Service%20invoice%20request) |
+| **48-Hour Audit + Fix Plan** (recommended) | **$1,000** | [Fund](mailto:sravan272001@gmail.com?subject=Service%20invoice%20request) |
+| Audit + Handoff | $1,500 | [Fund](mailto:sravan272001@gmail.com?subject=Service%20invoice%20request) |
 
 [See a sample report](https://sravan27.github.io/money-27-proof/proof/agent_cost_leak_sample_report.html) · [Submit a repo for a free scan](https://github.com/sravan27/money-27-proof/issues/new?template=free-scan.yml)
 

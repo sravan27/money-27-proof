@@ -93,7 +93,7 @@ null/three-valued logic, type coercion, collation/ordering, and numeric edge
 cases), I run it as a fixed-scope **48-hour compatibility-hardening sprint**:
 one bounded area, fixed price, reduced repros + fixes + tests + handoff notes.
 
-→ **[Book a sprint](https://buy.polar.sh/polar_cl_z0eLsPUJeMwrcNs4MQPAQbKIM3Rbdb8fLDgVj2RZcmr)** · or reach me at sravan272001@gmail.com
+→ **[Book a sprint](mailto:sravan272001@gmail.com?subject=Service%20invoice%20request)** · or reach me at sravan272001@gmail.com
 
 *(All five PRs were opened constructively, with tests, against the projects'
 own contribution guidelines. Thanks to those teams for building in the open.)*
