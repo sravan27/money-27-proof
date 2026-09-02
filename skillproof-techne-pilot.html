@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SkillProof Curation Pilot for Techne Skills</title>
+    <meta name="description" content="A version-bound performance-evidence pilot for one Techne-owned agent skill." />
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #111827;
+        --muted: #596273;
+        --line: #d7dde5;
+        --paper: #ffffff;
+        --soft: #f3f6f8;
+        --teal: #086f6c;
+        --gold: #b26a00;
+        --red: #b42318;
+      }
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        background: var(--paper);
+        color: var(--ink);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.55;
+      }
+      a { color: inherit; }
+      .wrap { width: min(1080px, calc(100% - 40px)); margin: 0 auto; }
+      header { border-bottom: 1px solid var(--line); }
+      nav { min-height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 24px; }
+      .brand { font-size: 15px; font-weight: 800; letter-spacing: 0; }
+      .nav-note { color: var(--muted); font-size: 14px; }
+      .hero { padding: 72px 0 46px; }
+      .eyebrow { color: var(--teal); font-size: 13px; font-weight: 800; text-transform: uppercase; }
+      h1, h2 { letter-spacing: 0; line-height: 1.08; margin: 0; }
+      h1 { max-width: 900px; margin-top: 12px; font-size: clamp(42px, 7vw, 78px); }
+      h2 { font-size: clamp(28px, 4vw, 46px); }
+      .lede { max-width: 790px; margin: 24px 0 0; color: var(--muted); font-size: 20px; }
+      .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+      .button {
+        display: inline-flex;
+        min-height: 46px;
+        align-items: center;
+        justify-content: center;
+        padding: 0 18px;
+        border: 1px solid var(--ink);
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 750;
+      }
+      .button.primary { background: var(--ink); color: white; }
+      .metric-strip {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        margin-top: 52px;
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+      }
+      .metric { padding: 22px 22px 22px 0; }
+      .metric + .metric { padding-left: 22px; border-left: 1px solid var(--line); }
+      .metric strong { display: block; color: var(--teal); font-size: 27px; }
+      .metric span { color: var(--muted); font-size: 14px; }
+      section { padding: 68px 0; border-top: 1px solid var(--line); }
+      .section-head { display: grid; grid-template-columns: 1fr 1fr; gap: 50px; align-items: end; }
+      .section-head p { color: var(--muted); margin: 0; }
+      .compare { margin-top: 36px; display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+      .compare > div { padding: 28px; }
+      .compare > div + div { border-left: 1px solid var(--line); background: var(--soft); }
+      .compare h3 { margin: 0 0 14px; font-size: 21px; }
+      .compare p { margin: 0; color: var(--muted); }
+      .checklist { list-style: none; padding: 0; margin: 18px 0 0; }
+      .checklist li { padding: 10px 0 10px 28px; border-top: 1px solid var(--line); position: relative; }
+      .checklist li::before { content: "✓"; position: absolute; left: 0; color: var(--teal); font-weight: 900; }
+      .report { margin-top: 36px; background: #101820; color: #eef7f5; padding: 30px; border-radius: 8px; }
+      .report-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 22px; align-items: center; }
+      .score { border: 1px solid #53616c; padding: 24px; border-radius: 6px; }
+      .score span { display: block; color: #a7b2ba; font-size: 13px; text-transform: uppercase; }
+      .score strong { display: block; margin-top: 5px; font-size: 42px; }
+      .arrow { font-size: 30px; color: #62d7cc; }
+      .verdict { margin-top: 22px; display: flex; flex-wrap: wrap; gap: 16px; color: #b8c3ca; }
+      .verdict b { color: #62d7cc; }
+      .workflow { margin-top: 38px; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 8px; }
+      .steps { margin-top: 36px; display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); }
+      .step { padding: 26px 26px 0 0; }
+      .step + .step { padding-left: 26px; border-left: 1px solid var(--line); }
+      .step b { color: var(--gold); }
+      .step h3 { margin: 8px 0; }
+      .step p { color: var(--muted); margin: 0; }
+      .offer { background: var(--soft); }
+      .offer-inner { display: grid; grid-template-columns: 1.25fr .75fr; gap: 70px; align-items: start; }
+      .offer ul { padding-left: 20px; }
+      .offer li { margin: 10px 0; }
+      .price-box { border-top: 4px solid var(--teal); padding-top: 20px; }
+      .price-box .price { font-size: 52px; font-weight: 850; line-height: 1; }
+      .price-box p { color: var(--muted); }
+      .fine { color: var(--muted); font-size: 13px; margin-top: 18px; }
+      footer { border-top: 1px solid var(--line); padding: 28px 0 42px; color: var(--muted); font-size: 14px; }
+      @media (max-width: 760px) {
+        .wrap { width: min(100% - 26px, 1080px); }
+        .nav-note { display: none; }
+        .hero { padding-top: 52px; }
+        h1 { font-size: 44px; }
+        .lede { font-size: 18px; }
+        .metric-strip, .section-head, .compare, .report-grid, .steps, .offer-inner { grid-template-columns: 1fr; }
+        .metric + .metric, .compare > div + div, .step + .step { border-left: 0; border-top: 1px solid var(--line); padding-left: 0; }
+        .arrow { transform: rotate(90deg); text-align: center; }
+        section { padding: 52px 0; }
+      }
+    </style>
+  </head>
+  <body>
+    <header><nav class="wrap"><span class="brand">SKILLPROOF × TECHNE PILOT</span><span class="nav-note">Independent proposal for Harun Rashid · September 2026</span></nav></header>
+    <main>
+      <section class="hero">
+        <div class="wrap">
+          <div class="eyebrow">A low-risk curation pilot for one Techne-owned skill</div>
+          <h1>“Actually improves output” should be a result, not a review note.</h1>
+          <p class="lede">Techne already promises a curated, versioned paid marketplace and checks that instructions improve agent output. SkillProof turns that judgment into a portable baseline-versus-candidate evidence record: same cases, explicit checks, zero hidden judge, no regressions, and hashes tied to the exact version.</p>
+          <div class="actions">
+            <a class="button primary" href="https://paypal.me/sravansridhar/1000USD" target="_blank" rel="noopener noreferrer">Fund the $1,000 pilot</a>
+            <a class="button" href="proof/skillproof-example-report.json">Inspect the example JSON</a>
+          </div>
+          <div class="metric-strip">
+            <div class="metric"><strong>50% → 100%</strong><span>Worked baseline/candidate example</span></div>
+            <div class="metric"><strong>0</strong><span>Regressions in the accepted release</span></div>
+            <div class="metric"><strong>1 skill</strong><span>Techne-owned pilot scope</span></div>
+            <div class="metric"><strong>Version-bound</strong><span>Evidence follows the shipped files</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="wrap">
+          <div class="section-head">
+            <h2>Turn curation into inspectable evidence.</h2>
+            <p>The pilot complements Techne's human review. It does not replace editorial judgment, and it does not pretend a small evaluation proves universal quality.</p>
+          </div>
+          <div class="compare">
+            <div>
+              <h3>Techne curation</h3>
+              <p>Is the skill properly scoped, commercially useful, fairly priced, and strong enough to deserve a place in a paid catalogue?</p>
+              <ul class="checklist"><li>Protects marketplace taste</li><li>Uses human product judgment</li><li>Rejects vague prompt packs</li></ul>
+            </div>
+            <div>
+              <h3>SkillProof evidence</h3>
+              <p>On disclosed cases, did this exact candidate produce measurably better artifacts than its baseline without breaking a passing case?</p>
+              <ul class="checklist"><li>Backs the improvement claim</li><li>Travels with each version</li><li>Gives buyers inspectable proof</li></ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="wrap">
+          <div class="section-head">
+            <h2>A listing badge backed by a report.</h2>
+            <p>The public worked example is deliberately small and deterministic. Every claim links to the case-level evidence rather than a marketing score.</p>
+          </div>
+          <div class="report">
+            <div class="report-grid">
+              <div class="score"><span>Baseline</span><strong>50%</strong></div>
+              <div class="arrow">→</div>
+              <div class="score"><span>Candidate</span><strong>100%</strong></div>
+            </div>
+            <div class="verdict"><span><b>+50.0pp</b> measured lift</span><span><b>1</b> improved case</span><span><b>0</b> regressions</span><span><b>KEEP</b> release verdict</span></div>
+          </div>
+          <img class="workflow" src="proof/skillproof-process.png" alt="Counterexample Skill Optimizer process: test, falsify, revise, and verify measured lift without safety regression." />
+        </div>
+      </section>
+
+      <section>
+        <div class="wrap">
+          <div class="section-head"><h2>One owned skill. One week. One decision.</h2><p>Start with Techne's first-party landing-page review example, so the experiment has no creator-consent bottleneck. Techne keeps control of policy and presentation.</p></div>
+          <div class="steps">
+            <div class="step"><b>01</b><h3>Choose</h3><p>Use one Techne-owned skill and state the exact artifact improvement its listing promises.</p></div>
+            <div class="step"><b>02</b><h3>Measure</h3><p>Score comparable baseline and candidate outputs with explicit artifact checks, then reject any regression.</p></div>
+            <div class="step"><b>03</b><h3>Decide</h3><p>Review the report and listing card. Add it to curation, revise it, or stop without a marketplace-wide commitment.</p></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="offer" id="pilot">
+        <div class="wrap offer-inner">
+          <div>
+            <div class="eyebrow">Founding Techne curation pilot</div>
+            <h2>Make one review decision reproducible before changing the marketplace.</h2>
+            <ul>
+              <li>90-day non-exclusive internal license to SkillProof Kit v1.x</li>
+              <li>Portable JSON report schema and embeddable evidence-card template</li>
+              <li>Configuration and evidence-card adaptation for one Techne-owned skill</li>
+              <li>Release provenance, deterministic packaging, and executable test suite</li>
+              <li>One implementation walkthrough and 30 days of defect fixes</li>
+            </ul>
+          </div>
+          <div class="price-box">
+            <div class="price">$1,000</div>
+            <p>One-time pilot license. The private package arrives within two business days; the skill-specific evidence card follows after Techne supplies the selected package and representative artifacts.</p>
+            <a class="button primary" href="https://paypal.me/sravansridhar/1000USD" target="_blank" rel="noopener noreferrer">Start via PayPal</a>
+            <p class="fine">The pilot measures disclosed cases; it does not certify universal model behavior or replace Techne's curation judgment. Techne branding and production deployment remain under Techne's control.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer><div class="wrap">SkillProof Kit by Sravan Sridhar · Independent proposal for Techne Skills · No affiliation implied</div></footer>
+  </body>
+</html>
