@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "tool": {
+    "name": "SkillProof Kit",
+    "version": "1.0.0"
+  },
+  "name": "Customer record transformation",
+  "scores": {
+    "baseline_percent": 50.0,
+    "candidate_percent": 100.0,
+    "lift_percentage_points": 50.0
+  },
+  "changes": {
+    "improvements": [
+      "external-sentinel"
+    ],
+    "regressions": []
+  },
+  "gate": {
+    "passed": true,
+    "reasons": [
+      "PASS measured lift +50.0pp; minimum +25.0pp",
+      "PASS regressions none; forbid_regressions=true"
+    ]
+  },
+  "skill_sha256": "009ea3bbc8c3dc67fdaef1103c53dd9a514d66f14aaba58e92c04050a6657767",
+  "claim_boundary": "This report records deterministic outcomes for the supplied cases and artifacts. It does not establish universal correctness, statistical significance, or causality beyond this evaluation pair."
+}
