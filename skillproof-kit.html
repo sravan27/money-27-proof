@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SkillProof Kit | Release agent skills with evidence</title>
+    <meta name="description" content="A zero-dependency local evaluation kit for proving an Agent Skill improves task outcomes without introducing regressions.">
+    <link rel="canonical" href="https://sravan27.github.io/money-27-proof/skillproof-kit.html">
+    <style>
+      :root {
+        --ink: #111827;
+        --muted: #5b6472;
+        --paper: #fbfcfd;
+        --surface: #ffffff;
+        --band: #eef7f5;
+        --line: #d8dee7;
+        --teal: #08766e;
+        --teal-dark: #075650;
+        --green: #16794b;
+        --green-soft: #e7f6ed;
+        --amber: #a15c00;
+        --amber-soft: #fff3d8;
+        --red: #a33a37;
+        --dark: #161b22;
+      }
+
+      * { box-sizing: border-box; }
+      html { scroll-behavior: smooth; }
+      body {
+        margin: 0;
+        color: var(--ink);
+        background: var(--paper);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.5;
+      }
+      a { color: inherit; }
+      button, a { letter-spacing: 0; }
+      .wrap { width: min(1160px, calc(100% - 40px)); margin: 0 auto; }
+      header {
+        min-height: 62px;
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid var(--line);
+        background: rgba(251, 252, 253, .96);
+        position: sticky;
+        top: 0;
+        z-index: 5;
+      }
+      header .wrap { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+      .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; text-decoration: none; }
+      .mark {
+        width: 31px;
+        height: 31px;
+        display: grid;
+        place-items: center;
+        color: white;
+        background: var(--teal);
+        border-radius: 6px;
+        font-size: 14px;
+      }
+      nav { display: flex; gap: 20px; color: var(--muted); font-size: 14px; }
+      nav a { text-decoration: none; }
+      nav a:hover { color: var(--ink); }
+
+      .hero {
+        min-height: 75vh;
+        display: grid;
+        align-items: center;
+        padding: 64px 0 42px;
+        background: var(--band);
+        border-bottom: 1px solid var(--line);
+      }
+      .hero-grid { display: grid; grid-template-columns: minmax(0, .9fr) minmax(420px, 1.1fr); gap: 54px; align-items: center; }
+      .eyebrow { margin: 0 0 14px; color: var(--teal-dark); font-size: 14px; font-weight: 800; text-transform: uppercase; }
+      h1 { margin: 0; max-width: 720px; font-size: clamp(44px, 7vw, 78px); line-height: .98; letter-spacing: 0; }
+      .hero-copy { margin: 22px 0 0; max-width: 650px; color: var(--muted); font-size: 19px; }
+      .actions { display: flex; flex-wrap: wrap; gap: 11px; margin-top: 28px; }
+      .button {
+        min-height: 46px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 0 17px;
+        border: 1px solid var(--ink);
+        border-radius: 7px;
+        text-decoration: none;
+        font-weight: 760;
+        background: white;
+      }
+      .button.primary { color: white; background: var(--ink); }
+      .button:hover { transform: translateY(-1px); }
+      .microcopy { margin-top: 13px; color: var(--muted); font-size: 13px; }
+
+      .report-window {
+        min-width: 0;
+        color: #e6edf3;
+        background: var(--dark);
+        border: 1px solid #30363d;
+        border-radius: 8px;
+        box-shadow: 0 24px 48px rgba(17, 24, 39, .16);
+        overflow: hidden;
+      }
+      .report-head { min-height: 48px; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 0 16px; border-bottom: 1px solid #30363d; font-size: 13px; }
+      .local { color: #7ee787; }
+      .score-row { display: grid; grid-template-columns: 1fr 1fr; }
+      .score { padding: 20px; border-bottom: 1px solid #30363d; }
+      .score + .score { border-left: 1px solid #30363d; }
+      .score span { display: block; color: #8b949e; font-size: 12px; text-transform: uppercase; }
+      .score strong { display: block; margin-top: 4px; font-size: 38px; }
+      .score.candidate strong { color: #7ee787; }
+      .verdict { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 14px; padding: 16px 20px; color: #7ee787; border-bottom: 1px solid #30363d; }
+      .verdict strong { font-size: 22px; }
+      .verdict span { font-size: 13px; }
+      .mini-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+      .mini-table th, .mini-table td { padding: 11px 14px; border-bottom: 1px solid #30363d; text-align: left; }
+      .mini-table th { color: #8b949e; font-weight: 650; }
+      .pass { color: #7ee787; }
+      .fail { color: #f2cc60; }
+      .hash { padding: 12px 16px; color: #8b949e; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 10px; overflow-wrap: anywhere; }
+
+      section { padding: 72px 0; }
+      .section-head { max-width: 760px; margin-bottom: 30px; }
+      .section-head p { margin: 12px 0 0; color: var(--muted); font-size: 17px; }
+      h2 { margin: 0; font-size: clamp(30px, 4.5vw, 48px); line-height: 1.04; letter-spacing: 0; }
+      h3 { margin: 0; font-size: 19px; }
+      .process { background: white; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+      .process-image { display: block; width: 100%; height: auto; border: 1px solid var(--line); }
+      .caption { margin: 12px 0 0; color: var(--muted); font-size: 13px; }
+
+      .steps { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
+      .step { min-height: 190px; padding: 22px; background: white; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+      .step-number { width: 30px; height: 30px; display: grid; place-items: center; color: white; background: var(--teal); border-radius: 50%; font-size: 13px; font-weight: 800; }
+      .step h3 { margin-top: 18px; }
+      .step p { margin: 9px 0 0; color: var(--muted); font-size: 14px; }
+
+      .proof-band { background: var(--dark); color: white; }
+      .proof-band .section-head p { color: #b8c0cc; }
+      .proof-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: #30363d; border: 1px solid #30363d; }
+      .proof-cell { padding: 24px; background: var(--dark); }
+      .proof-cell strong { display: block; font-size: 29px; color: #7ee787; }
+      .proof-cell span { display: block; margin-top: 6px; color: #b8c0cc; font-size: 14px; }
+
+      .pricing { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+      .price-card { padding: 24px; background: white; border: 1px solid var(--line); border-radius: 8px; }
+      .price-card.featured { border: 2px solid var(--teal); }
+      .price-card .label { color: var(--teal-dark); font-size: 13px; font-weight: 800; text-transform: uppercase; }
+      .price { margin: 10px 0 16px; font-size: 40px; font-weight: 850; }
+      .price small { color: var(--muted); font-size: 14px; font-weight: 500; }
+      .price-card ul { min-height: 150px; margin: 0 0 22px; padding: 0; list-style: none; color: var(--muted); font-size: 14px; }
+      .price-card li { margin: 9px 0; }
+      .price-card li::before { content: "✓"; margin-right: 8px; color: var(--green); font-weight: 900; }
+      .price-card .button { width: 100%; }
+      .terms { margin-top: 18px; color: var(--muted); font-size: 13px; }
+      footer { padding: 30px 0; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+      footer .wrap { display: flex; justify-content: space-between; gap: 20px; }
+
+      @media (max-width: 900px) {
+        .hero-grid { grid-template-columns: 1fr; }
+        .hero { min-height: auto; }
+        .steps { grid-template-columns: 1fr 1fr; }
+        .pricing { grid-template-columns: 1fr; }
+        .price-card ul { min-height: 0; }
+      }
+      @media (max-width: 620px) {
+        .wrap { width: min(100% - 26px, 1160px); }
+        nav a:not(:last-child) { display: none; }
+        .hero { padding-top: 44px; }
+        .hero-grid { gap: 34px; }
+        h1 { font-size: 44px; }
+        .report-window { margin: 0 -5px; }
+        .verdict { grid-template-columns: 1fr 1fr; }
+        .verdict strong { grid-column: 1 / -1; }
+        .mini-table th:nth-child(2), .mini-table td:nth-child(2) { display: none; }
+        .steps, .proof-grid { grid-template-columns: 1fr; }
+        section { padding: 54px 0; }
+        footer .wrap { flex-direction: column; }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="wrap">
+        <a class="brand" href="#top"><span class="mark">SP</span>SkillProof Kit</a>
+        <nav aria-label="Primary navigation">
+          <a href="#method">Method</a>
+          <a href="#evidence">Evidence</a>
+          <a href="#buy">Licenses</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div class="wrap hero-grid">
+          <div>
+            <p class="eyebrow">Local evaluation for Agent Skills</p>
+            <h1>Ship the skill only when the evidence says keep.</h1>
+            <p class="hero-copy">Compare identical agent tasks before and after a skill. Catch regressions, fingerprint the exact version, and produce a release report your team can inspect.</p>
+            <div class="actions">
+              <a class="button primary" href="#buy">Get the founding release</a>
+              <a class="button" href="proof/skillproof-example-report.json">Inspect sample JSON</a>
+            </div>
+            <p class="microcopy">Zero dependencies. No model API. Prompts and outputs stay on your machine.</p>
+          </div>
+
+          <div class="report-window" aria-label="Worked SkillProof evaluation">
+            <div class="report-head"><strong>Customer record transformation</strong><span class="local">● Local run</span></div>
+            <div class="score-row">
+              <div class="score"><span>Baseline</span><strong>50%</strong></div>
+              <div class="score candidate"><span>Candidate</span><strong>100%</strong></div>
+            </div>
+            <div class="verdict"><strong>✓ KEEP</strong><span>+50.0pp lift</span><span>0 regressions</span></div>
+            <table class="mini-table">
+              <thead><tr><th>Case</th><th>Baseline</th><th>Candidate</th></tr></thead>
+              <tbody>
+                <tr><td>Ordinary records</td><td class="pass">PASS</td><td class="pass">PASS</td></tr>
+                <tr><td>External sentinel</td><td class="fail">FAIL</td><td class="pass">PASS</td></tr>
+              </tbody>
+            </table>
+            <div class="hash">skill sha256 009ea3bbc8c3dc67fdaef1103c53dd9a514d66f14aaba58e92c04050a6657767</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="method" class="process">
+        <div class="wrap">
+          <div class="section-head">
+            <h2>A falsification loop, not a vibe check.</h2>
+            <p>One skill change at a time. Preserve passing behavior. Reject average gains that hide a newly broken case.</p>
+          </div>
+          <img class="process-image" src="proof/skillproof-process.png" alt="Counterexample-driven skill optimization loop: test, falsify, revise, and verify measured lift">
+          <p class="caption">The included optimizer turns observed failure into one minimal skill revision, then reruns the frozen case matrix.</p>
+        </div>
+      </section>
+
+      <section>
+        <div class="wrap">
+          <div class="section-head">
+            <h2>Works with the agent you already use.</h2>
+            <p>SkillProof evaluates durable outputs, so it stays vendor-neutral and does not consume model credits.</p>
+          </div>
+          <div class="steps">
+            <article class="step"><span class="step-number">1</span><h3>Define observable cases</h3><p>Describe files, JSON values, required text, forbidden output, hashes, or your own verifier command.</p></article>
+            <article class="step"><span class="step-number">2</span><h3>Run the baseline</h3><p>Give Codex, Claude Code, or another agent the task without the skill and preserve its artifacts.</p></article>
+            <article class="step"><span class="step-number">3</span><h3>Run the candidate</h3><p>Repeat with the smallest applicable skill under the same model, prompt, and environment.</p></article>
+            <article class="step"><span class="step-number">4</span><h3>Gate the release</h3><p>Get a keep or reject decision, exact regressions, evidence hashes, and reviewable reports.</p></article>
+          </div>
+        </div>
+      </section>
+
+      <section id="evidence" class="proof-band">
+        <div class="wrap">
+          <div class="section-head">
+            <h2>The tool is tested against itself.</h2>
+            <p>The founding release ships with executable tests, a complete paired example, and a deterministic distribution build.</p>
+          </div>
+          <div class="proof-grid">
+            <div class="proof-cell"><strong>8 / 8</strong><span>Unit tests passing on Python 3.14</span></div>
+            <div class="proof-cell"><strong>0</strong><span>Runtime dependencies or paid API calls</span></div>
+            <div class="proof-cell"><strong>8 + 1</strong><span>Built-in artifact checks plus opt-in custom verifiers</span></div>
+            <div class="proof-cell"><strong>SHA-256</strong><span>Skill, spec, report, and release provenance</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section id="buy">
+        <div class="wrap">
+          <div class="section-head">
+            <h2>Founding release licenses.</h2>
+            <p>One private download, permanent access to version 1.x updates, and license scope that matches how you work.</p>
+          </div>
+          <div class="pricing">
+            <article class="price-card">
+              <span class="label">Solo</span>
+              <div class="price">$79 <small>one time</small></div>
+              <ul><li>One person</li><li>Personal and commercial projects</li><li>Version 1.x updates</li></ul>
+              <a class="button" href="mailto:sridharsravan@live.com?subject=SkillProof%20Solo%20license&body=I%27d%20like%20the%20SkillProof%20Solo%20license.%20Please%20send%20the%20PayPal%20checkout.">Request Solo license</a>
+            </article>
+            <article class="price-card featured">
+              <span class="label">Team</span>
+              <div class="price">$249 <small>one time</small></div>
+              <ul><li>One legal entity</li><li>Unlimited internal users</li><li>Commercial client work</li><li>Version 1.x updates</li></ul>
+              <a class="button primary" href="mailto:sridharsravan@live.com?subject=SkillProof%20Team%20license&body=I%27d%20like%20the%20SkillProof%20Team%20license.%20Please%20send%20the%20PayPal%20checkout.">Request Team license</a>
+            </article>
+            <article class="price-card">
+              <span class="label">Agency</span>
+              <div class="price">$499 <small>one time</small></div>
+              <ul><li>One agency</li><li>Unlimited internal users</li><li>Use in client delivery</li><li>Version 1.x updates</li></ul>
+              <a class="button" href="mailto:sridharsravan@live.com?subject=SkillProof%20Agency%20license&body=I%27d%20like%20the%20SkillProof%20Agency%20license.%20Please%20send%20the%20PayPal%20checkout.">Request Agency license</a>
+            </article>
+          </div>
+          <p class="terms">Digital software license. The toolkit is delivered after payment. Redistribution and resale are not included. The evaluator measures supplied cases and does not claim universal correctness.</p>
+        </div>
+      </section>
+    </main>
+
+    <footer><div class="wrap"><span>SkillProof Kit by Sravan Sridhar</span><span>Local evidence for Agent Skill releases</span></div></footer>
+  </body>
+</html>
